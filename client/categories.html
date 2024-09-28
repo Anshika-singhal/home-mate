@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Categories</title>
     <style>
@@ -14,6 +15,48 @@
 
         nav {
             background-color: #e3c9b8; /* Same navbar background color */
+            padding: 0.5rem 1rem; /* Ensure consistent padding */
+        }
+
+        .navbar-brand img {
+            height: 30px;
+        }
+
+        .add-item-button {
+            position: relative;
+            margin-left: 20px; /* Add margin for spacing */
+        }
+
+        .add-item-button button {
+            background-color: #b29a7a; /* Darker background color for the button */
+            border: none; /* Remove border */
+            border-radius: 50%; /* Make it circular */
+            width: 50px; /* Set width */
+            height: 50px; /* Set height */
+            display: flex; /* Center the icon */
+            align-items: center; /* Center vertically */
+            justify-content: center; /* Center horizontally */
+            transition: background-color 0.3s; /* Add transition for hover effect */
+        }
+
+        .add-item-button button:hover {
+            background-color: #a58d74; /* Darker shade on hover */
+        }
+
+        .add-item-message {
+            display: none;
+            position: absolute;
+            bottom: auto; /* Adjusted to show above the button */
+            right: 10;
+            background-color: #f5e3d8; /* Light background for message */
+            color: black;
+            padding: 5px;
+            border-radius: 5px;
+            z-index: 1;
+        }
+
+        .add-item-button:hover .add-item-message {
+            display: block; /* Show message on hover */
         }
 
         .breadcrumb {
@@ -33,6 +76,7 @@
             background-color: #d2b59c; /* Same header color as Home */
             color: white;
             font-weight: bold;
+            position: relative; /* Make it relative for positioning child elements */
         }
 
         .list-group-item {
@@ -59,20 +103,82 @@
         .container {
             margin-top: 2em; /* Margin for container */
         }
+
+        #itemFormContainer {
+            display: none; /* Hide the form initially */
+            margin-top: 20px;
+        }
+
+        /* Updated button styles */
+        .btn-primary {
+            background-color: #d2b59c; /* Updated primary button color */
+            border-color: #d2b59c; /* Match border color */
+        }
+
+        .btn-primary:hover {
+            background-color: #c2a288; /* Darker shade on hover */
+            border-color: #c2a288; /* Match border color */
+        }
     </style>
 </head>
 
 <body>
-    <nav aria-label="breadcrumb">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="home.html">Home</a></li>
-            <li class="breadcrumb-item active" aria-current="page">Categories</li>
-        </ol>
+    <nav class="navbar navbar-expand-lg navbar-light">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="Home.html">
+                <img src="home.png" alt="Home" class="img-fluid" style="max-width: 50px;">
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false"
+                aria-label="Toggle navigation">
+                <!-- <span class="navbar-toggler-icon"></span> -->
+            </button>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0"></ul>
+                <li class="nav-item add-item-button">
+                    <button class="btn" id="showFormButton">
+                        <i class="bi bi-plus" style="font-size: 24px; color: white;"></i> <!-- Plus icon -->
+                    </button>
+                    <div class="add-item-message">Add Item</div> <!-- Hover message -->
+                </li>
+            </div>
+        </div>
     </nav>
 
     <div class="container">
         <h2 class="text-center mb-4">Categories</h2>
         <div id="categoryContainer" style="display: flex; flex-direction: row; justify-content: center; flex-wrap: wrap;"></div>
+
+        <div id="itemFormContainer">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h2>Add Item to Category</h2>
+                    <button class="btn-close" id="cancelButton" aria-label="Close" style="position: absolute; right: 10px; top: 10px;"></button>
+                </div>
+                <div class="card-body">
+                    <form id="ItemForm">
+                        <div class="mb-3">
+                            <select id="CategoryId" class="form-select" required>
+                                <option value="" disabled selected>Select Category</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <input type="text" id="ItemName" class="form-control"
+                                placeholder="Enter item name" required />
+                        </div>
+                        <div class="mb-3">
+                            <input type="text" id="ItemDescription" class="form-control"
+                                placeholder="Enter item description (optional)" />
+                        </div>
+                        <button type="submit" class="btn btn-primary">Add Item</button>
+                        <div id="itemMessage" class="text-danger mt-2"></div>
+                    </form>
+                    <h4 class="mt-3">Items in Selected Category:</h4>
+                    <ul id="ItemList" class="list-group mt-2"></ul>
+                </div>
+            </div>
+        </div>
     </div>
 
     <div class="footer mt-4">
@@ -81,46 +187,178 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
+            // Get categoryId from the URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const categoryId = urlParams.get('categoryId');
+    
             fetchCategories();
+    
+            // Show the item form when the button is clicked
+            document.getElementById('showFormButton').addEventListener('click', function () {
+                const formContainer = document.getElementById('itemFormContainer');
+                formContainer.style.display = formContainer.style.display === 'block' ? 'none' : 'block';
+            });
+    
+            // Cancel button functionality
+            document.getElementById('cancelButton').addEventListener('click', function () {
+                const formContainer = document.getElementById('itemFormContainer');
+                formContainer.style.display = 'none'; // Hide the form
+            });
+    
+            // Handle the item form submission
+            const form = document.getElementById('ItemForm');
+            form.addEventListener('submit', function (event) {
+                event.preventDefault(); // Prevent form from refreshing the page
+    
+                const selectedCategoryId = document.getElementById('CategoryId').value;
+                const itemName = document.getElementById('ItemName').value;
+                const itemDescription = document.getElementById('ItemDescription').value;
+                const itemMessage = document.getElementById('itemMessage');
+    
+                if (!selectedCategoryId || !itemName) {
+                    itemMessage.textContent = 'Please select a category and enter an item name.';
+                    return;
+                }
+    
+                addItemToCategory(selectedCategoryId, itemName, itemDescription);
+            });
+    
+            // If a categoryId is present in the URL, fetch and display its items
+            if (categoryId) {
+                fetchCategoryItems(categoryId);
+            }
         });
-
+    
         function fetchCategories() {
             fetch('http://localhost:5000/api/v1/categories') // Replace with your actual API endpoint
                 .then(response => response.json())
                 .then(data => {
                     data.forEach(category => {
-                        addCategory(category.name, category.items);
+                        addCategory(category.name, category.items, category._id);
                     });
                 })
                 .catch(error => {
                     console.error('Error fetching categories:', error);
                 });
         }
-
-        function addCategory(categoryName, items) {
+    
+        function addCategory(categoryName, items, categoryId) {
             const card = document.createElement('div');
             card.classList.add('card');
             card.style.width = '15rem';
-
+    
             const cardHeader = document.createElement('div');
             cardHeader.classList.add('card-header');
             cardHeader.textContent = categoryName;
             card.appendChild(cardHeader);
-
+    
             const listGroup = document.createElement('ul');
             listGroup.classList.add('list-group', 'list-group-flush');
-
+            listGroup.id = `category-items-${categoryId}`; // Assign a unique ID to each category's item list
+    
             items.forEach(item => {
                 const listItem = document.createElement('li');
                 listItem.classList.add('list-group-item');
                 listItem.textContent = item.name; // Assuming items have a 'name' property
                 listGroup.appendChild(listItem);
             });
-
+    
             card.appendChild(listGroup);
             document.getElementById('categoryContainer').appendChild(card);
+    
+            // Add category to dropdown in form
+            const option = document.createElement('option');
+            option.value = categoryId;
+            option.textContent = categoryName;
+            document.getElementById('CategoryId').appendChild(option);
+        }
+    
+        function fetchCategoryItems(categoryId) {
+            fetch(`http://localhost:5000/api/v1/categories/${categoryId}`) // Replace with your actual API endpoint
+                .then(response => response.json())
+                .then(category => {
+                    const itemList = document.getElementById('ItemList');
+                    itemList.innerHTML = ''; // Clear any existing items
+    
+                    category.items.forEach(item => {
+                        const listItem = document.createElement('li');
+                        listItem.classList.add('list-group-item');
+                        listItem.textContent = item.name; // Assuming items have a 'name' property
+                        itemList.appendChild(listItem);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error fetching category items:', error);
+                });
+        }
+    
+        function addItemToCategory(categoryId, itemName, itemDescription) {
+            const newItem = {
+                name: itemName,
+                description: itemDescription
+            };
+    
+            fetch(`http://localhost:5000/api/v1/categories/${categoryId}/items`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(newItem)
+            })
+                .then(response => response.json())
+                .then(data => {
+                    // Clear the form
+                    document.getElementById('ItemName').value = '';
+                    document.getElementById('ItemDescription').value = '';
+    
+                    // Clear the item message and update success
+                    const itemMessage = document.getElementById('itemMessage');
+                    itemMessage.textContent = 'Item added successfully!';
+    
+                    // Clear the item list before adding updated data
+                    const itemList = document.getElementById('ItemList');
+                    itemList.innerHTML = ''; // Clear the old list
+    
+                    // Add the new item to the form's item list
+                    const listItem = document.createElement('li');
+                    listItem.classList.add('list-group-item');
+                    listItem.textContent = data.name; // Assuming response contains the item name
+                    itemList.appendChild(listItem);
+    
+                    // Re-fetch the entire category to reflect changes in the category card
+                    fetch(`http://localhost:5000/api/v1/categories/${categoryId}`)
+                        .then(response => response.json())
+                        .then(category => {
+                            // Clear the category items list before adding updated items
+                            const categoryItemsList = document.getElementById(`category-items-${categoryId}`);
+                            categoryItemsList.innerHTML = ''; // Clear the old list
+    
+                            category.items.forEach(item => {
+                                const newCategoryItem = document.createElement('li');
+                                newCategoryItem.classList.add('list-group-item');
+                                newCategoryItem.textContent = item.name;
+                                categoryItemsList.appendChild(newCategoryItem);
+                            });
+                        })
+                        .catch(error => {
+                            console.error('Error re-fetching category items:', error);
+                        });
+    
+                    // Hide the form after adding an item
+                    document.getElementById('itemFormContainer').style.display = 'none';
+                })
+                .catch(error => {
+                    const itemMessage = document.getElementById('itemMessage');
+                    itemMessage.textContent = 'Error adding item.';
+                    console.error('Error:', error);
+                });
         }
     </script>
+    
+
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 
 </html>
+
+
