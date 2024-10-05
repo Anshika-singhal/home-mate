@@ -97,43 +97,6 @@ async function fetchCategoryItems(categoryId) {
 }
 
 // Function to add an item to the category
-// async function addItemToCategory(categoryId) {
-//     const itemName = document.getElementById('ItemName').value;
-//     const itemDescription = document.getElementById('ItemDescription').value;
-//     const itemInstruction = document.getElementById('ItemInstruction').value;
-//     const responseMessage = document.getElementById('ResponseMessage');
-
-//     if (!itemName) {
-//         responseMessage.innerText = "Please enter an Item Name to add to the category";
-//         return;
-//     }
-
-//     const requiredData = { name: itemName, description: itemDescription, instruction: itemInstruction };
-
-//     try {
-//         const response = await fetch(`http://localhost:5000/api/v1/categories/${categoryId}/items`, {
-//             method: "POST",
-//             headers: {
-//                 'Content-Type': 'application/json'
-//             },
-//             body: JSON.stringify(requiredData)
-//         });
-
-//         if (response.ok) {
-//             responseMessage.innerText = "Item Added Successfully!";
-//             // Optionally, you can refresh the list after adding a new item
-//             fetchCategoryItems(categoryId);
-//         } else {
-//             const errorData = await response.json();
-//             responseMessage.innerText = `Error: ${errorData.message}`;
-//         }
-//     } catch (error) {
-//         console.error("Error Adding Item:", error);
-//         responseMessage.innerText = `Item Not Added: ${error.message}`;
-//     }
-// }
-
-// Function to add an item to the category
 async function addItemToCategory(categoryId) {
     const itemNameInput = document.getElementById('ItemName');
     const itemDescriptionInput = document.getElementById('ItemDescription');
@@ -187,7 +150,7 @@ async function addItemToCategory(categoryId) {
             setTimeout(() => {
                 responseMessage.innerText = '';
             }, 3000);
-            
+
             // Optionally, you can refresh the list after adding a new item
             fetchCategoryItems(categoryId);
         } else {

@@ -1,21 +1,6 @@
 document.addEventListener('DOMContentLoaded', function () {
     const categoryMessageElement = document.getElementById("categoryMessage");
 
-    // Redirect to categories.html when the "Categories" header is clicked
-    // const categoriesHeader = document.getElementById('categoriesHeader');
-    // categoriesHeader.addEventListener('click', () => {
-    //     window.location.href = 'categories.html';
-    // });
-
-    // Change color on hover
-    // categoriesHeader.addEventListener('mouseenter', () => {
-    //     categoriesHeader.style.color = '#6a4e4d'; // Darker shade on hover
-    // });
-
-    // categoriesHeader.addEventListener('mouseleave', () => {
-    //     categoriesHeader.style.color = '#8b5e3c'; // Original color
-    // });
-
     // Add category form submit
     document.getElementById("CategoryForm").addEventListener("submit", async function (e) {
         e.preventDefault(); // Prevent default form submission
@@ -47,11 +32,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 newCategory.innerText = result.name;
                 newCategory.className = 'list-group-item d-flex justify-content-between align-items-center';
                 newCategory.style.cursor = 'pointer'; // Add cursor style for interactivity
-
-                // // Add click event to redirect to categories.html with the category ID
-                // newCategory.addEventListener('click', () => {
-                //     window.location.href = `categories.html?categoryId=${result._id}`; // Redirect with category ID
-                // });
 
                 // Create the delete button
                 const deleteButton = document.createElement('button');
