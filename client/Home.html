@@ -7,9 +7,21 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+        }
+
         body {
             background-color: #f8f4e3;
             font-family: 'Arial', sans-serif;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh; /* Ensures the body takes full viewport height */
+        }
+
+        .container {
+            flex-grow: 1; /* Ensures the content area grows to push the footer down */
         }
 
         .navbar {
@@ -20,10 +32,9 @@
             height: 30px;
         }
 
-        h1,
-        h2 {
+        h1 {
             color: #8b5e3c;
-            cursor: pointer; /* Make h2 clickable */
+            cursor: pointer; /* Make h1 clickable */
         }
 
         .card {
@@ -66,11 +77,25 @@
             padding: 20px;
             background-color: #343a40;
             color: white;
+            width: 100%; /* Make sure the footer spans the full width of the screen */
+            position: relative; /* Keeps it positioned under the content */
+            flex-shrink: 0; /* Ensures the footer does not shrink */
         }
 
         .footer a {
             color: #ffc107;
             text-decoration: none;
+        }
+
+        .footer a:hover {
+            color: white;
+        }
+
+        /* Ensures the footer stays at the bottom if content is short, but scrolls with longer content */
+        body {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between; /* Ensures content and footer are spaced appropriately */
         }
 
         .mb-4 {
@@ -82,6 +107,7 @@
             margin-top: 15px;
             font-weight: bold;
         }
+
     </style>
 </head>
 
@@ -145,7 +171,7 @@
         </div>
     </div>
 
-    <div class="footer mt-4 fixed-bottom">
+    <div class="footer mt-4 ">
         <p>© 2024 Home Mate | <a href="#">Contact Us</a></p>
     </div>
 </div>

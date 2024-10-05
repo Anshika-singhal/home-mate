@@ -2,19 +2,19 @@ document.addEventListener('DOMContentLoaded', function () {
     const categoryMessageElement = document.getElementById("categoryMessage");
 
     // Redirect to categories.html when the "Categories" header is clicked
-    const categoriesHeader = document.getElementById('categoriesHeader');
-    categoriesHeader.addEventListener('click', () => {
-        window.location.href = 'categories.html';
-    });
+    // const categoriesHeader = document.getElementById('categoriesHeader');
+    // categoriesHeader.addEventListener('click', () => {
+    //     window.location.href = 'categories.html';
+    // });
 
     // Change color on hover
-    categoriesHeader.addEventListener('mouseenter', () => {
-        categoriesHeader.style.color = '#6a4e4d'; // Darker shade on hover
-    });
+    // categoriesHeader.addEventListener('mouseenter', () => {
+    //     categoriesHeader.style.color = '#6a4e4d'; // Darker shade on hover
+    // });
 
-    categoriesHeader.addEventListener('mouseleave', () => {
-        categoriesHeader.style.color = '#8b5e3c'; // Original color
-    });
+    // categoriesHeader.addEventListener('mouseleave', () => {
+    //     categoriesHeader.style.color = '#8b5e3c'; // Original color
+    // });
 
     // Add category form submit
     document.getElementById("CategoryForm").addEventListener("submit", async function (e) {
@@ -38,7 +38,7 @@ document.addEventListener('DOMContentLoaded', function () {
             });
 
             const result = await response.json();
-            console.log(result); // Log the result for debugging
+             console.log(result);// Log the result for debugging
 
             if (response.ok) {
                 // Create and append the new category to the list
@@ -48,17 +48,18 @@ document.addEventListener('DOMContentLoaded', function () {
                 newCategory.className = 'list-group-item d-flex justify-content-between align-items-center';
                 newCategory.style.cursor = 'pointer'; // Add cursor style for interactivity
 
-                // Add click event to redirect to categories.html with the category ID
-                newCategory.addEventListener('click', () => {
-                    window.location.href = `categories.html?categoryId=${result._id}`; // Redirect with category ID
-                });
+                // // Add click event to redirect to categories.html with the category ID
+                // newCategory.addEventListener('click', () => {
+                //     window.location.href = `categories.html?categoryId=${result._id}`; // Redirect with category ID
+                // });
 
                 // Create the delete button
                 const deleteButton = document.createElement('button');
                 deleteButton.innerHTML = '<i class="fas fa-trash-alt"></i>'; // Using Font Awesome for the trash icon
                 deleteButton.className = 'btn btn-danger btn-sm'; // Bootstrap classes for styling
                 deleteButton.style.marginLeft = 'auto'; // Push the button to the right
-                deleteButton.onclick = () => {
+                deleteButton.onclick = (e) => {
+                    e.stopPropagation(); // Prevent event propagation
                     deleteCategorybyID(result._id);
                 };
 
@@ -100,14 +101,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 newCategory.addEventListener('click', () => {
                     window.location.href = `categories.html?categoryId=${category._id}`; // Redirect with category ID
+                    //console.log(category._id);
                 });
+                //console.log(category._id);
 
                 // Create the delete button
                 const deleteButton = document.createElement('button');
                 deleteButton.innerHTML = '<i class="fas fa-trash-alt"></i>'; // Using Font Awesome for the trash icon
                 deleteButton.className = 'btn btn-danger btn-sm'; // Bootstrap classes for styling
                 deleteButton.style.marginLeft = 'auto'; // Push the button to the right
-                deleteButton.onclick = () => {
+                deleteButton.onclick = (e) => {
+                    e.stopPropagation(); // Prevent event propagation
                     deleteCategorybyID(category._id);
                 };
 
@@ -122,5 +126,25 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Call fetchCategories on page load
     fetchCategories();
-});
+    // Delete category by ID
+    async function deleteCategorybyID(categoryId) {
+        try {
+            const response = await fetch(`http://localhost:5000/api/v1/categories/${categoryId}`, {
+                method: 'DELETE',
+            });
 
+            if (response.ok) {
+                // Remove the category from the UI
+                const categoryElement = document.getElementById(categoryId);
+                if (categoryElement) categoryElement.remove();
+
+                categoryMessageElement.innerText = 'Category deleted successfully!';
+                setTimeout(() => { categoryMessageElement.innerText = ''; }, 3000);
+            } else {
+                categoryMessageElement.innerText = 'Failed to delete category.';
+            }
+        } catch (error) {
+            categoryMessageElement.innerText = `Error deleting category: ${error.message}`;
+        }
+    }
+});
