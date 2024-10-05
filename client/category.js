@@ -71,9 +71,23 @@ async function fetchCategoryItems(categoryId) {
             checkbox.type = 'checkbox';
             checkbox.checked = item.workFinish; // Set checkbox based on item's finish status
             checkbox.addEventListener('change', async function () {
-                await toggleCheckBox(categoryId, item._id);
+                if (this.checked) { // If checked
+                    const isConfirmed = confirm("Have you completed this task?");
+                    if (isConfirmed) {
+                        await toggleCheckBox(categoryId, item._id);
+                    } else {
+                        checkbox.checked = false; // Revert checkbox state if canceled
+                    }
+                } else { // If unchecked
+                    const isConfirmed = confirm("Are you sure you want to uncheck this checkbox?");
+                    if (isConfirmed) {
+                        await toggleCheckBox(categoryId, item._id);
+                    } else {
+                        checkbox.checked = true; // Revert checkbox state if canceled
+                    }
+                }
             });
-
+            
             // Create the delete button
             const deleteButton = document.createElement('button');
             deleteButton.innerHTML = '<i class="fas fa-trash-alt"></i>'; // Font Awesome trash icon
@@ -180,6 +194,9 @@ async function toggleCheckBox(categoryId, itemId) {
 
 // Function to delete item from category
 async function deleteItemFromCategory(categoryId, itemId) {
+    if (!confirm("Are you sure you want to delete this item?")) {
+        return; // Exit the function if the user cancels
+    }
     try {
         const response = await fetch(`http://localhost:5000/api/v1/categories/${categoryId}/item/${itemId}`, {
             method: 'DELETE'

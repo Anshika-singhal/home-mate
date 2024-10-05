@@ -108,6 +108,9 @@ document.addEventListener('DOMContentLoaded', function () {
     fetchCategories();
     // Delete category by ID
     async function deleteCategorybyID(categoryId) {
+        if (!confirm("Are you sure you want to delete this category?")) {
+            return; // Exit the function if the user cancels
+        }
         try {
             const response = await fetch(`http://localhost:5000/api/v1/categories/${categoryId}`, {
                 method: 'DELETE',
