@@ -91,9 +91,6 @@ router.post('/v1/categories/:id/items',async(req,res)=>{
     const {name,description,instructions} = req.body;
     const{id}=req.params;
 
-    // Log incoming data for debugging
-    console.log("Request Body:", req.body);
-
     try{
         const category=await Category.findById(id);
         if(!category){
@@ -203,4 +200,35 @@ router.delete('/v1/categories/:categoryId/item/:itemId',async(req,res)=>{
     }
 });
 
+//-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+router.post('/v1/categories/:categoryId/items/:itemId',async(req,res)=>{
+    const {lastCleaningDate,lastCleanedBy,cleaningFrequency} = req.body;
+    const{categoryId,itemId}=req.params;
+
+    try{
+        const category=await Category.findById(categoryId);
+        if(!category){
+            res.status(400).json({message:"Category not found!!"});
+        }
+        const item=await category.items.id(itemId);
+        if(!item){
+            res.status(404).json({message:"Item not found in this category!!!"});
+        }
+
+        // Update the existing item's maintenance data
+        const ItemMaintenance = { lastCleaningDate, lastCleanedBy, cleaningFrequency };
+
+        // Push the new maintenance data to the item's ItemMaintainance array
+        item.ItemMaintainance.push(ItemMaintenance);
+
+        console.log('Item before saving:', item); // Verify the changes
+
+        await category.save(); // Save the updated category with the modified item
+        
+        res.status(201).json({message:"Item Maintainance Added Successfully!!!!"});
+    }catch(err){
+        res.status(500).json({message:"server error", error:err.message})
+    }
+});
 module.exports=router;

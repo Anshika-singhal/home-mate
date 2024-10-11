@@ -23,7 +23,7 @@ document.addEventListener('DOMContentLoaded', function () {
             });
 
             const result = await response.json();
-             console.log(result);// Log the result for debugging
+            console.log(result);// Log the result for debugging
 
             if (response.ok) {
                 // Create and append the new category to the list
@@ -72,18 +72,30 @@ document.addEventListener('DOMContentLoaded', function () {
             const CategoryList = document.getElementById('CategoryList');
             CategoryList.innerHTML = ''; // Clear previous list
 
+            // Loop through each category and fetch incomplete item count
             Categories.forEach(category => {
                 const newCategory = document.createElement('li');
                 newCategory.id = category._id;
-                newCategory.innerText = category.name;
                 newCategory.className = 'list-group-item d-flex justify-content-between align-items-center';
                 newCategory.style.cursor = 'pointer';
 
+                // Incomplete count span (to be populated later)
+                const incompleteCountSpan = document.createElement('span');
+                incompleteCountSpan.className = 'badge bg-danger rounded-pill'; // Bootstrap badge for styling
+                incompleteCountSpan.innerText = 'Loading...'; // Temporary text while fetching count
+
+                // Fetch incomplete item count and update the span
+                fetchIncompleteItemCount(category._id).then(incompleteCount => {
+                    incompleteCountSpan.innerText = incompleteCount >= 0 ? incompleteCount : ''; // Show count only if > 0
+                });
+
+                // Category name span
+                const categoryNameSpan = document.createElement('span');
+                categoryNameSpan.innerText = category.name;
+
                 newCategory.addEventListener('click', () => {
                     window.location.href = `categories.html?categoryId=${category._id}`; // Redirect with category ID
-                    //console.log(category._id);
                 });
-                //console.log(category._id);
 
                 // Create the delete button
                 const deleteButton = document.createElement('button');
@@ -95,12 +107,31 @@ document.addEventListener('DOMContentLoaded', function () {
                     deleteCategorybyID(category._id);
                 };
 
-                // Append the delete button and new category to the list
+                // Append the category name, incomplete count, and delete button to the list item
+                newCategory.appendChild(incompleteCountSpan); // Display the incomplete item count
+                newCategory.appendChild(categoryNameSpan);     // Display the category name next to the count
                 newCategory.appendChild(deleteButton);
+
+                // Append the new category to the list
                 CategoryList.appendChild(newCategory);
             });
         } catch (error) {
             console.error('Error fetching categories:', error);
+        }
+    }
+
+    // Helper function to fetch incomplete item count for a category
+    async function fetchIncompleteItemCount(categoryId) {
+        try {
+            const response = await fetch(`http://localhost:5000/api/v1/categories/${categoryId}/items`);
+            const data = await response.json();
+
+            const items = data.getting.items || [];
+            const incompleteItems = items.filter(item => !item.workFinish); // Get only incomplete items
+            return incompleteItems.length;
+        } catch (error) {
+            console.error('Error fetching incomplete item count:', error);
+            return 0; // Return 0 if there's an error
         }
     }
 

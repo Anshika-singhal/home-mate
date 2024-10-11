@@ -14,6 +14,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // Handle item form submission
     document.getElementById('ItemForm').addEventListener('submit', function (event) {
         event.preventDefault();
+        console.log("Form submitted!"); // Log to check if event is firing
         addItemToCategory(categoryId); // Use the fetched categoryId from URL
     });
 
@@ -31,7 +32,6 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 });
 
-// Function to fetch and display category items
 async function fetchCategoryItems(categoryId) {
     try {
         const response = await fetch(`http://localhost:5000/api/v1/categories/${categoryId}/items`);
@@ -42,43 +42,57 @@ async function fetchCategoryItems(categoryId) {
             return;
         }
 
+        // Display category name in navbar
+        document.getElementById('categoryName').textContent = data.getting.name;
+
         const items = data.getting.items;
         const categoryContainer = document.getElementById('categoryContainer');
         categoryContainer.innerHTML = ''; // Clear previous content
+
+        let incompleteItemCount = 0;  // Track incomplete items
 
         if (items.length === 0) {
             categoryContainer.innerText = "No items found in this category.";
             return;
         }
 
-        const card = document.createElement('div');
-        card.classList.add('card');
-
-        const cardHeader = document.createElement('div');
-        cardHeader.classList.add('card-header');
-        cardHeader.textContent = data.getting.name; // Category name
-        card.appendChild(cardHeader);
-
-        const listGroup = document.createElement('ul');
-        listGroup.classList.add('list-group', 'list-group-flush');
-
         items.forEach(item => {
-            const listItem = document.createElement('li');
-            listItem.className = 'list-group-item d-flex justify-content-between align-items-center';
+            if (!item.name.trim()) {
+                return; // Skip creating card if item name is empty
+            }
 
-            // Create a checkbox
+            if (!item.workFinish) {
+                incompleteItemCount++;  // Increment if the item is not finished
+            }
+
+            // Create card container for flipping
+            const card = document.createElement('div');
+            card.className = 'flip-card mb-3'; // Add flip-card class
+
+            const flipCardInner = document.createElement('div');
+            flipCardInner.className = 'flip-card-inner'; // Add flip-card-inner class
+
+            // Create front of the card
+            const flipCardFront = document.createElement('div');
+            flipCardFront.className = 'flip-card-front card-header d-flex justify-content-between align-items-center';
+
+            // Front of the card (item name, checkbox, and flip button)
+            const cardHeader = document.createElement('div');
+            cardHeader.className = 'card-header d-flex justify-content-between align-items-center';
+
+            // Checkbox for item completion
             const checkbox = document.createElement('input');
             checkbox.type = 'checkbox';
             checkbox.checked = item.workFinish; // Set checkbox based on item's finish status
             checkbox.addEventListener('change', async function () {
-                if (this.checked) { // If checked
+                if (this.checked) {
                     const isConfirmed = confirm("Have you completed this task?");
                     if (isConfirmed) {
                         await toggleCheckBox(categoryId, item._id);
                     } else {
                         checkbox.checked = false; // Revert checkbox state if canceled
                     }
-                } else { // If unchecked
+                } else {
                     const isConfirmed = confirm("Are you sure you want to uncheck this checkbox?");
                     if (isConfirmed) {
                         await toggleCheckBox(categoryId, item._id);
@@ -86,25 +100,81 @@ async function fetchCategoryItems(categoryId) {
                         checkbox.checked = true; // Revert checkbox state if canceled
                     }
                 }
+                // Update the incomplete count display
+                document.getElementById(`incomplete-count-${categoryId}`).textContent = incompleteItemCount;
             });
-            
-            // Create the delete button
+
+            // Create a wrapper for centering the item name
+            const nameWrapper = document.createElement('div');
+            nameWrapper.className = 'w-100 text-center d-flex'; // This ensures the item name is centered
+
+            const itemName = document.createElement('span');
+            itemName.innerText = item.name;
+            itemName.className = 'fw-bold';
+
+            nameWrapper.appendChild(itemName);
+
+            // Flip button to trigger the card flip
+            const flipButton = document.createElement('button');
+            flipButton.innerText = 'Flip';
+            flipButton.className = 'btn btn-secondary btn-sm';
+            flipButton.onclick = () => {
+                flipCardInner.classList.toggle('flipped'); // Toggle 'flipped' class on click
+            };
+
+            // Append checkbox, nameWrapper, and flip button to card header
+            cardHeader.appendChild(checkbox);
+            cardHeader.appendChild(nameWrapper);
+            cardHeader.appendChild(flipButton);
+
+            // Back of the card (includes item description and delete button)
+            const flipCardBack = document.createElement('div');
+            flipCardBack.className = 'flip-card-back card-body';
+
+            const description = document.createElement('p');
+            description.innerText = `Description: ${item.description || 'No description available'}`;
+
+            const instructions = document.createElement('p');
+            instructions.innerText = `Instructions: ${item.instructions || 'No instructions available'}`;
+
+            // Delete button
             const deleteButton = document.createElement('button');
             deleteButton.innerHTML = '<i class="fas fa-trash-alt"></i>'; // Font Awesome trash icon
-            deleteButton.className = 'btn btn-danger btn-sm'; // Bootstrap styling
+            deleteButton.className = 'btn btn-danger btn-sm';
             deleteButton.onclick = (e) => {
                 e.stopPropagation(); // Prevent event propagation
                 deleteItemFromCategory(categoryId, item._id);
             };
 
-            listItem.textContent = `${item.name}: ${item.description || 'No description available'}`;
-            listItem.prepend(checkbox); // Add checkbox before text
-            listItem.appendChild(deleteButton); // Add delete button at the end
-            listGroup.appendChild(listItem);
+            // Append description, instructions, and delete button to flipCardBack
+            flipCardBack.appendChild(description);
+            flipCardBack.appendChild(instructions);
+            flipCardBack.appendChild(deleteButton); // Add delete button to the back of the card
+
+            flipCardInner.appendChild(flipCardFront); // Front of the card
+            flipCardInner.appendChild(flipCardBack); // Back of the card
+
+            card.appendChild(flipCardInner);
+            categoryContainer.appendChild(card);
         });
 
-        card.appendChild(listGroup);
-        categoryContainer.appendChild(card);
+        // Add incomplete items count next to the delete button
+        const incompleteCountWrapper = document.createElement('div');
+        incompleteCountWrapper.className = 'incomplete-count-wrapper'; // Add a class to control visibility
+        incompleteCountWrapper.style.display = 'none'; // Hide it by default
+
+        const incompleteCountDisplay = document.createElement('span');
+        incompleteCountDisplay.id = `incomplete-count-${categoryId}`;
+        incompleteCountDisplay.textContent = `Incomplete Items: ${incompleteItemCount}`;
+        incompleteCountWrapper.appendChild(incompleteCountDisplay);
+
+        categoryContainer.appendChild(incompleteCountWrapper); // Append it to the container
+
+        // Check if the current page is the home page (adjust based on your file structure)
+        if (window.location.pathname.includes('Home.html')) {
+            incompleteCountWrapper.style.display = 'block'; // Show the incomplete count on the home page
+        }
+
     } catch (error) {
         document.getElementById("categoryContainer").innerText = `Error fetching category items: ${error.message}`;
     }
@@ -128,7 +198,6 @@ async function addItemToCategory(categoryId) {
     const itemName = itemNameInput.value;
     const itemDescription = itemDescriptionInput.value;
     const itemInstruction = itemInstructionInput.value;
-    console.log(itemInstruction);
 
     if (!itemName) {
         responseMessage.innerText = "Please enter an Item Name to add to the category";
@@ -148,6 +217,9 @@ async function addItemToCategory(categoryId) {
             },
             body: JSON.stringify(requiredData)
         });
+
+        console.log(response); // Add this to inspect the response object
+
 
         if (response.ok) {
             responseMessage.innerText = "Item Added Successfully!";
@@ -175,7 +247,6 @@ async function addItemToCategory(categoryId) {
         console.error("Error Adding Item:", error);
         responseMessage.innerText = `Item Not Added: ${error.message}`;
     }
-    console.log("Request Body: ", JSON.stringify(requiredData)); // Log the request body
 }
 
 // Function to toggle item checkbox (update item status)
