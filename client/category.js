@@ -74,11 +74,15 @@ async function fetchCategoryItems(categoryId) {
 
             // Create front of the card
             const flipCardFront = document.createElement('div');
-            flipCardFront.className = 'flip-card-front card-header d-flex justify-content-between align-items-center';
+            flipCardFront.className = 'flip-card-front card-body'; // Add flip-card-front class
+            flipCardFront.style.backgroundColor = '#f9f9f9'; // Light background for the front of the card
 
-            // Front of the card (item name, checkbox, and flip button)
+            // Front of the card (includes header and item details)
             const cardHeader = document.createElement('div');
-            cardHeader.className = 'card-header d-flex justify-content-between align-items-center';
+            cardHeader.className = 'card-header d-flex justify-content-between align-items-center bg-dark text-white'; // Header has darker background
+            cardHeader.style.padding = '10px'; // Add padding for better spacing
+
+            // Checkbox for item completion
 
             // Checkbox for item completion
             const checkbox = document.createElement('input');
@@ -121,11 +125,13 @@ async function fetchCategoryItems(categoryId) {
             flipButton.onclick = () => {
                 flipCardInner.classList.toggle('flipped'); // Toggle 'flipped' class on click
             };
-
             // Append checkbox, nameWrapper, and flip button to card header
             cardHeader.appendChild(checkbox);
             cardHeader.appendChild(nameWrapper);
             cardHeader.appendChild(flipButton);
+
+            // Append the card header to the front of the flip card
+            flipCardFront.appendChild(cardHeader);
 
             // Back of the card (includes item description and delete button)
             const flipCardBack = document.createElement('div');
@@ -151,6 +157,7 @@ async function fetchCategoryItems(categoryId) {
             flipCardBack.appendChild(instructions);
             flipCardBack.appendChild(deleteButton); // Add delete button to the back of the card
 
+            // Append both the front and back to the flip card inner container
             flipCardInner.appendChild(flipCardFront); // Front of the card
             flipCardInner.appendChild(flipCardBack); // Back of the card
 
@@ -180,17 +187,25 @@ async function fetchCategoryItems(categoryId) {
     }
 }
 
+flatpickr("#ItemServiceDate", {
+    altInput: true,
+    altFormat: "F j, Y",
+    dateFormat: "Y-m-d",
+    minDate: "today",
+})
 // Function to add an item to the category
 async function addItemToCategory(categoryId) {
     const itemNameInput = document.getElementById('ItemName');
     const itemDescriptionInput = document.getElementById('ItemDescription');
     const itemInstructionInput = document.getElementById('ItemInstruction');
+    const frequencyInput = document.getElementById('ItemFrequency');
+    const serviceDateInput = document.getElementById('ItemServiceDate');
     const responseMessage = document.getElementById('ResponseMessage');
     const itemFormContainer = document.getElementById('itemFormContainer'); // To hide the form later
 
 
     // Check if the input elements exist
-    if (!itemNameInput || !itemDescriptionInput || !itemInstructionInput) {
+    if (!itemNameInput || !itemDescriptionInput || !itemInstructionInput || !frequencyInput || !serviceDateInput) {
         responseMessage.innerText = "Input fields are not found. Please check your HTML.";
         return;
     }
@@ -198,16 +213,21 @@ async function addItemToCategory(categoryId) {
     const itemName = itemNameInput.value;
     const itemDescription = itemDescriptionInput.value;
     const itemInstruction = itemInstructionInput.value;
+    const Frequency = frequencyInput.value;
+    const ServiceDate = serviceDateInput.value;
 
-    if (!itemName) {
-        responseMessage.innerText = "Please enter an Item Name to add to the category";
+    if (!itemName || !Frequency || !ServiceDate) {
+        responseMessage.innerText = "Please enter the required fields to add to the category";
         return;
     }
 
-    const requiredData = { name: itemName,
-         description: itemDescription,
-          instructions: itemInstruction, 
-        };
+    const requiredData = {
+        name: itemName,
+        description: itemDescription,
+        instructions: itemInstruction,
+        frequency: Frequency,
+        serviceDate: ServiceDate
+    };
 
     try {
         const response = await fetch(`http://localhost:5000/api/v1/categories/${categoryId}/items`, {
@@ -228,6 +248,8 @@ async function addItemToCategory(categoryId) {
             itemNameInput.value = '';
             itemDescriptionInput.value = '';
             itemInstructionInput.value = '';
+            frequencyInput.value = '';
+            serviceDateInput.value = '';
 
             // Hide the form immediately
             itemFormContainer.style.display = 'none';

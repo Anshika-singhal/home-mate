@@ -87,24 +87,33 @@ router.delete('/v1/categories/:id',async(req,res)=>{
 
 //----------------------------------------------------------------------------------------------------------------------------------------------------------
 
-router.post('/v1/categories/:id/items',async(req,res)=>{
-    const {name,description,instructions} = req.body;
-    const{id}=req.params;
+router.post('/v1/categories/:id/items', async (req, res) => {
+    const { name, description, instructions, frequency } = req.body;
+    const serviceDate = new Date(req.body.serviceDate); // Convert to Date
 
-    try{
-        const category=await Category.findById(id);
-        if(!category){
-            res.status(400).json({message:"Category not found!!"});
+    // Validate the serviceDate
+    if (isNaN(serviceDate.getTime())) {
+        return res.status(400).json({ message: "Invalid service date format" });
+    }
+
+    const { id } = req.params;
+
+    try {
+        const category = await Category.findById(id);
+        if (!category) {
+            return res.status(400).json({ message: "Category not found!!" });
         }
 
-        const newItem={name,description,instructions,workFinish:false};
+        const newItem = { name, description, instructions, workFinish: false, frequency, serviceDate };
         category.items.push(newItem);
         await category.save();
-        res.status(201).json({message:"Item Added Successfully!!!!"});
-    }catch(err){
-        res.status(500).json({message:"server error", error:err.message})
+
+        res.status(201).json({ message: "Item Added Successfully!!!!" });
+    } catch (err) {
+        res.status(500).json({ message: "Server error", error: err.message });
     }
 });
+
 
 router.put('/v1/categories/:categoryId/items/:itemId',async(req,res)=>{
     const {categoryId,itemId}=req.params;
@@ -203,7 +212,7 @@ router.delete('/v1/categories/:categoryId/item/:itemId',async(req,res)=>{
 //-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 router.post('/v1/categories/:categoryId/items/:itemId',async(req,res)=>{
-    const {lastCleaningDate,lastCleanedBy,cleaningFrequency} = req.body;
+    const {lastServiced} = req.body;
     const{categoryId,itemId}=req.params;
 
     try{

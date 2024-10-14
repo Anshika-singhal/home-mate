@@ -3,11 +3,7 @@ const ItemMaintainance = new mongoose.Schema({
     lastServiced: {
         type: Date, // Last cleaning date stored as a Date object
         required: true
-    },
-    DueDate: {
-        type: Date, // Stores the name of the person who cleaned last
-        required: true
-    },
+    }
 });
 const ItemSchema = new mongoose.Schema({
     name: {
@@ -59,5 +55,3 @@ const CategorySchema = new mongoose.Schema({
 
 
 module.exports = mongoose.model('category', CategorySchema);
-//schema for uncheck automatically after provided time frequency 
-// think of ideas for better performance and distinguishability
