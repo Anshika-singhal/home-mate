@@ -72,17 +72,17 @@ async function fetchCategoryItems(categoryId) {
             const flipCardInner = document.createElement('div');
             flipCardInner.className = 'flip-card-inner'; // Add flip-card-inner class
 
-            // Create front of the card
+            // Front of the card (includes header and item details)
             const flipCardFront = document.createElement('div');
-            flipCardFront.className = 'flip-card-front card-body'; // Add flip-card-front class
-            flipCardFront.style.backgroundColor = '#f9f9f9'; // Light background for the front of the card
+            flipCardFront.className = 'flip-card-front';
+            flipCardFront.style.backgroundColor = '#e3c9b8'; // Set background color here
 
             // Front of the card (includes header and item details)
             const cardHeader = document.createElement('div');
-            cardHeader.className = 'card-header d-flex justify-content-between align-items-center bg-dark text-white'; // Header has darker background
-            cardHeader.style.padding = '10px'; // Add padding for better spacing
-
-            // Checkbox for item completion
+            cardHeader.className = 'card-header d-flex align-items-center'; // Keep d-flex for flex properties
+            cardHeader.style.backgroundColor = '#bfa284'; // Match your front color
+            cardHeader.style.color = '#333'; // Dark text
+            cardHeader.style.justifyContent = 'space-between'; // Space elements out
 
             // Checkbox for item completion
             const checkbox = document.createElement('input');
@@ -93,6 +93,8 @@ async function fetchCategoryItems(categoryId) {
                     const isConfirmed = confirm("Have you completed this task?");
                     if (isConfirmed) {
                         await toggleCheckBox(categoryId, item._id);
+                        await updateDate(categoryId, item._id);
+                        await dateUpdateNext(categoryId,item._id,item.frequency);
                     } else {
                         checkbox.checked = false; // Revert checkbox state if canceled
                     }
@@ -100,6 +102,7 @@ async function fetchCategoryItems(categoryId) {
                     const isConfirmed = confirm("Are you sure you want to uncheck this checkbox?");
                     if (isConfirmed) {
                         await toggleCheckBox(categoryId, item._id);
+                        await updateDate(categoryId, item._id);
                     } else {
                         checkbox.checked = true; // Revert checkbox state if canceled
                     }
@@ -108,9 +111,8 @@ async function fetchCategoryItems(categoryId) {
                 document.getElementById(`incomplete-count-${categoryId}`).textContent = incompleteItemCount;
             });
 
-            // Create a wrapper for centering the item name
             const nameWrapper = document.createElement('div');
-            nameWrapper.className = 'w-100 text-center d-flex'; // This ensures the item name is centered
+            nameWrapper.className = 'flex-grow-1 text-center'; // Center item name and grow to take space
 
             const itemName = document.createElement('span');
             itemName.innerText = item.name;
@@ -125,17 +127,19 @@ async function fetchCategoryItems(categoryId) {
             flipButton.onclick = () => {
                 flipCardInner.classList.toggle('flipped'); // Toggle 'flipped' class on click
             };
-            // Append checkbox, nameWrapper, and flip button to card header
+
+            // Append elements to cardHeader
             cardHeader.appendChild(checkbox);
             cardHeader.appendChild(nameWrapper);
             cardHeader.appendChild(flipButton);
 
-            // Append the card header to the front of the flip card
             flipCardFront.appendChild(cardHeader);
 
-            // Back of the card (includes item description and delete button)
+            // Back of the card
             const flipCardBack = document.createElement('div');
             flipCardBack.className = 'flip-card-back card-body';
+            flipCardBack.style.backgroundColor = '#bfa284'; // Consistent with the back color
+            flipCardBack.style.color = '#ffffff'; // White text
 
             const description = document.createElement('p');
             description.innerText = `Description: ${item.description || 'No description available'}`;
@@ -143,7 +147,17 @@ async function fetchCategoryItems(categoryId) {
             const instructions = document.createElement('p');
             instructions.innerText = `Instructions: ${item.instructions || 'No instructions available'}`;
 
-            // Delete button
+            // Flip Back button to flip the card back to the front (aligned left)
+            const flipBackButton = document.createElement('button');
+            flipBackButton.innerText = 'Flip Back';
+            flipBackButton.className = 'btn btn-secondary btn-sm';
+
+            // Flip back on button click
+            flipBackButton.onclick = () => {
+                flipCardInner.classList.toggle('flipped'); // Toggle 'flipped' class to return to the front
+            };
+
+            // Delete button (aligned right)
             const deleteButton = document.createElement('button');
             deleteButton.innerHTML = '<i class="fas fa-trash-alt"></i>'; // Font Awesome trash icon
             deleteButton.className = 'btn btn-danger btn-sm';
@@ -152,17 +166,16 @@ async function fetchCategoryItems(categoryId) {
                 deleteItemFromCategory(categoryId, item._id);
             };
 
-            // Append description, instructions, and delete button to flipCardBack
             flipCardBack.appendChild(description);
             flipCardBack.appendChild(instructions);
-            flipCardBack.appendChild(deleteButton); // Add delete button to the back of the card
+            flipCardBack.appendChild(deleteButton);
+            flipCardBack.appendChild(flipBackButton);
 
-            // Append both the front and back to the flip card inner container
-            flipCardInner.appendChild(flipCardFront); // Front of the card
-            flipCardInner.appendChild(flipCardBack); // Back of the card
-
+            flipCardInner.appendChild(flipCardFront);
+            flipCardInner.appendChild(flipCardBack);
             card.appendChild(flipCardInner);
-            categoryContainer.appendChild(card);
+
+            categoryContainer.appendChild(card); // Append card to the category container
         });
 
         // Add incomplete items count next to the delete button
@@ -275,7 +288,7 @@ async function addItemToCategory(categoryId) {
 async function toggleCheckBox(categoryId, itemId) {
     try {
         const response = await fetch(`http://localhost:5000/api/v1/categories/${categoryId}/items/${itemId}`, {
-            method: 'PUT'
+            method: 'PUT',
         });
         if (!response.ok) {
             throw new Error("Cannot update the item status!");
@@ -304,3 +317,57 @@ async function deleteItemFromCategory(categoryId, itemId) {
         console.error(`Error deleting item: ${error.message}`);
     }
 }
+
+//Function to add lastServiced date in database
+async function updateDate(categoryId, itemId) {
+    try {
+        const response = await fetch(`http://localhost:5000/api/v1/categories/${categoryId}/items/${itemId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ lastServiced: new Date().toString() }),
+        });
+        if (!response.ok) {
+            throw new Error("Cannot update the item status!");
+        }
+    } catch (error) {
+        console.error(`Error updating item status: ${error.message}`);
+    }
+}
+//undone work
+
+async function dateUpdateNext(categoryId, itemId, frequency){
+    const response = await fetch(`http://localhost:5000/api/v1/categories/${categoryId}/item/${itemId}`);
+    const itemData = await response.json();
+    const oneDayInMs = 24 * 60 * 60 * 1000;
+    let nextServiceDate;
+    if(itemData.workFinish==true && itemData._id && itemData.serviceDate){
+        const lastServiceDate = new Date(itemData.serviceDate);
+        switch(frequency){
+            case 'daily':
+                nextServiceDate=new Date(lastServiceDate.getTime()+oneDayInMs);
+                break;
+            case 'weekly':
+                nextServiceDate=new Date(lastServiceDate.getTime()+oneDayInMs*7);
+                break;
+            case 'monthly':
+                nextServiceDate=new Date(lastServiceDate.setMonth(lastServiceDate.getMonth()+1));
+                break;
+            default:
+                console.log("No valid frequency selected!");
+                return;
+        }
+    const updateDate = {serviceDate:nextServiceDate.toISOString()};
+    console.log(updateDate);
+    await fetch(`http://localhost:5000/api/v1/categories/${categoryId}/item/${itemId}`, {
+        method: "PATCH",
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(updateDate)
+    });
+    console.log(`update service date for item${itemId} to ${nextServiceDate.toLocaleDateString()}`)
+    }
+}
+

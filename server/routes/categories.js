@@ -209,6 +209,46 @@ router.delete('/v1/categories/:categoryId/item/:itemId',async(req,res)=>{
     }
 });
 
+// PATCH request to update the serviceDate of an item in a category
+router.patch('/v1/categories/:categoryId/item/:itemId', async (req, res) => {
+    const { categoryId, itemId } = req.params;
+    const  updateDate  = req.body;
+
+    try {
+        // Find the category by its ID and also the item inside it
+        const category = await Category.findById(categoryId);
+
+        if (!category) {
+            return res.status(404).json({ message: "Category not found" });
+        }
+
+        // Find the specific item within the category
+        const item = category.items.id(itemId); // Assuming `items` is an array of items in the category
+
+        if (!item) {
+            return res.status(404).json({ message: "Item not found" });
+        }
+
+        // // Update the serviceDate if it exists
+        // if (serviceDate) {
+        //     item.serviceDate = new Date(serviceDate);
+        // } else {
+        //     return res.status(400).json({ message: "Service date is required" });
+        // }
+
+        item.serviceDate=updateDate.serviceDate;
+
+        // Save the updated category document
+        await category.save();
+
+        return res.status(200).json({ message: "Service date updated successfully", item });
+
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: "Server error", error });
+    }
+});
+
 //-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 router.post('/v1/categories/:categoryId/items/:itemId',async(req,res)=>{
@@ -226,12 +266,10 @@ router.post('/v1/categories/:categoryId/items/:itemId',async(req,res)=>{
         }
 
         // Update the existing item's maintenance data
-        const ItemMaintenance = { lastCleaningDate, lastCleanedBy, cleaningFrequency };
+        const ItemMaintenance = { lastServiced };
 
         // Push the new maintenance data to the item's ItemMaintainance array
         item.ItemMaintainance.push(ItemMaintenance);
-
-        console.log('Item before saving:', item); // Verify the changes
 
         await category.save(); // Save the updated category with the modified item
         

@@ -254,12 +254,13 @@
             /* Center the cards horizontally */
         }
 
+        /* Adjustments for Flip Cards to match page theme */
         .flip-card {
             background-color: transparent;
             width: 300px;
-            /* Set your desired width */
+            /* Set desired width */
             height: 400px;
-            /* Set your desired height */
+            /* Set desired height */
             perspective: 1000px;
         }
 
@@ -271,8 +272,9 @@
             transform-style: preserve-3d;
         }
 
-        .flip-card:hover .flip-card-inner {
+        .flip-card-inner.flipped {
             transform: rotateY(180deg);
+            /* Apply the flip when the 'flipped' class is added */
         }
 
         .flip-card-front,
@@ -282,31 +284,37 @@
             height: 100%;
             backface-visibility: hidden;
             border-radius: 10px;
-            /* Rounded corners */
             font-family: 'Arial', sans-serif;
-            /* Matching your font style */
+            /* Match your font style */
         }
 
+        /* Front of the card with updated background color */
         .flip-card-front {
-            z-index: 2;
-            /* Ensures the front is on top when not flipped */
-            background-color: #f8f4e3;
-            /* Light nude background for the front body (from your page) */
+            background-color: #e3c9b8;
+            /* Updated color for the front */
+            color: #333;
+            /* Dark text color for contrast */
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            /* Soft shadow effect */
+            /* Soft shadow */
         }
 
+
+        /* Back of the card with deeper nude shade */
         .flip-card-back {
             transform: rotateY(180deg);
-            background-color: #e3c9b8;
-            /* Slightly darker shade for the back side (nude theme) */
+            background-color: #bfa284;
+            /* Deeper nude for the back */
+            color: white;
+            /* White text for contrast */
             padding: 20px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            /* Slightly stronger shadow */
         }
 
+        /* Flip card header to match card styling */
         .flip-card .card-header {
             background-color: #d2b59c;
-            /* Darker nude shade for the header (consistent with your navbar) */
+            /* Darker nude for the header */
             color: white;
             font-weight: bold;
             padding: 10px;
@@ -314,19 +322,37 @@
             border-top-right-radius: 10px;
         }
 
+        /* Flip card body to match the theme */
         .flip-card .card-body {
             background-color: #f8f4e3;
-            /* Lighter nude background for the card body */
+            /* Light nude for the card body */
             color: #333;
             padding: 20px;
+            text-align: center;
             border-bottom-left-radius: 10px;
             border-bottom-right-radius: 10px;
-            text-align: center;
         }
 
         .flip-card-back {
-            border-radius: 10px;
-            /* Match the rounded corner styling */
+            position: relative;
+            /* Allows positioning of child elements */
+            padding: 10px;
+        }
+
+        .flip-card-back .delete-btn {
+            position: absolute;
+            top: 10px;
+            /* Adjust the vertical distance from the top */
+            right: 10px;
+            /* Align the delete button to the right end */
+        }
+
+        .flip-card-back .flip-btn {
+            position: absolute;
+            top: 10px;
+            /* Adjust the vertical distance from the top */
+            left: 10px;
+            /* Align the flip button to the left end */
         }
     </style>
 </head>
