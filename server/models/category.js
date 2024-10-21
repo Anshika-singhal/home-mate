@@ -24,20 +24,21 @@ const ItemSchema = new mongoose.Schema({
     },
     workFinish: {
         type: Boolean,
-        default: false
+        default: false // Assume it's unfinished by default
     },
     frequency: {
         type: String,
         enum:['daily','weekly','monthly','yearly','custom']
     },
     serviceDate:{
-        type:Date,
-        required:true
+        type: Date, // This needs to be required in creation logic
+        required: true
     },
     ItemMaintainance: [
         ItemMaintainance
     ]
 });
+
 const CategorySchema = new mongoose.Schema({
     name: {
         type: String,

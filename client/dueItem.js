@@ -22,7 +22,7 @@ async function fetchCategoryDueItem() {
             items.forEach(item => {
                 const dueDate = new Date(item.serviceDate);
                 const leftTime = dueDate - now;
-                if ((leftTime > 0 && leftTime<1) || leftTime <= oneDayInMs) {
+                if ((leftTime > 0 && leftTime<1) || leftTime <= oneDayInMs && work) {
                     const itemDiv = document.createElement('div');
                     itemDiv.className = 'list-group-item d-flex justify-content-between align-items-center';
                     itemDiv.innerHTML = `<div class="col md-4">

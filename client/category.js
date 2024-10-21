@@ -94,7 +94,8 @@ async function fetchCategoryItems(categoryId) {
                     if (isConfirmed) {
                         await toggleCheckBox(categoryId, item._id);
                         await updateDate(categoryId, item._id);
-                        await dateUpdateNext(categoryId,item._id,item.frequency);
+                        const frequency = item.frequency || 'weekly'; // Default to 'daily' if frequency is not defined
+                        await dateUpdateNext(categoryId, item._id, frequency);
                     } else {
                         checkbox.checked = false; // Revert checkbox state if canceled
                     }
@@ -337,37 +338,79 @@ async function updateDate(categoryId, itemId) {
 }
 //undone work
 
-async function dateUpdateNext(categoryId, itemId, frequency){
-    const response = await fetch(`http://localhost:5000/api/v1/categories/${categoryId}/item/${itemId}`);
-    const itemData = await response.json();
-    const oneDayInMs = 24 * 60 * 60 * 1000;
-    let nextServiceDate;
-    if(itemData.workFinish==true && itemData._id && itemData.serviceDate){
+async function dateUpdateNext(categoryId, itemId, frequency) {
+    try {
+        const response = await fetch(`http://localhost:5000/api/v1/categories/${categoryId}/item/${itemId}`);
+        
+        // Check if the response is ok before parsing
+        if (!response.ok) {
+            throw new Error("Failed to fetch item data");
+        }
+
+        const itemData = await response.json();
+        console.log(itemData);
+
+        // Check if the item has a valid service date
+        if (!itemData.serviceDate) {
+            console.log("Error: serviceDate is missing.");
+            return;
+        }
+
+        // Check if the item is marked as finished
+        if (!itemData.workFinish) {
+            console.log("Error: Item is not marked as finished.");
+            return;
+        }
+
         const lastServiceDate = new Date(itemData.serviceDate);
-        switch(frequency){
+        
+        // Validate lastServiceDate
+        if (isNaN(lastServiceDate.getTime())) {
+            console.log("Error: Invalid service date format.");
+            return;
+        }
+
+        const oneDayInMs = 24 * 60 * 60 * 1000;
+        let nextServiceDate;
+
+        // Calculate the next service date based on frequency
+        switch (frequency) {
             case 'daily':
-                nextServiceDate=new Date(lastServiceDate.getTime()+oneDayInMs);
+                nextServiceDate = new Date(lastServiceDate.getTime() + oneDayInMs);
                 break;
             case 'weekly':
-                nextServiceDate=new Date(lastServiceDate.getTime()+oneDayInMs*7);
+                nextServiceDate = new Date(lastServiceDate.getTime() + oneDayInMs * 7);
                 break;
             case 'monthly':
-                nextServiceDate=new Date(lastServiceDate.setMonth(lastServiceDate.getMonth()+1));
+                nextServiceDate = new Date(lastServiceDate.setMonth(lastServiceDate.getMonth() + 1));
+                break;
+            case 'yearly':
+                nextServiceDate = new Date(lastServiceDate.setFullYear(lastServiceDate.getFullYear() + 1));
                 break;
             default:
-                console.log("No valid frequency selected!");
+                console.log("Invalid frequency selected");
                 return;
         }
-    const updateDate = {serviceDate:nextServiceDate.toISOString()};
-    console.log(updateDate);
-    await fetch(`http://localhost:5000/api/v1/categories/${categoryId}/item/${itemId}`, {
-        method: "PATCH",
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(updateDate)
-    });
-    console.log(`update service date for item${itemId} to ${nextServiceDate.toLocaleDateString()}`)
+
+        // Prepare the update for the next service date
+        const updateDate = { serviceDate: nextServiceDate.toISOString() };
+
+        // Send the PATCH request to update the next service date
+        const updateResponse = await fetch(`http://localhost:5000/api/v1/categories/${categoryId}/item/${itemId}`, {
+            method: "PATCH",
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(updateDate),
+        });
+
+        // Check if the update response is ok
+        if (!updateResponse.ok) {
+            throw new Error("Failed to update next service date");
+        }
+
+        console.log(`Updated service date for item ${itemId} to ${nextServiceDate.toLocaleDateString()}`);
+    } catch (error) {
+        console.error(`Error updating next service date: ${error.message}`);
     }
 }
-

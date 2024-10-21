@@ -87,33 +87,78 @@ router.delete('/v1/categories/:id',async(req,res)=>{
 
 //----------------------------------------------------------------------------------------------------------------------------------------------------------
 
-router.post('/v1/categories/:id/items', async (req, res) => {
-    const { name, description, instructions, frequency } = req.body;
-    const serviceDate = new Date(req.body.serviceDate); // Convert to Date
+// router.post('/v1/categories/:id/items', async (req, res) => {
+//     const { name, description, instructions, frequency } = req.body;
+//     const serviceDate = new Date(req.body.serviceDate); // Convert to Date
 
+//     // Validate the serviceDate
+//     if (isNaN(serviceDate.getTime())) {
+//         return res.status(400).json({ message: "Invalid service date format" });
+//     }
+
+//     const { id } = req.params;
+
+//     try {
+//         const category = await Category.findById(id);
+//         if (!category) {
+//             return res.status(400).json({ message: "Category not found!!" });
+//         }
+
+//         const newItem = { name, description, instructions, workFinish: false, frequency, serviceDate };
+//         category.items.push(newItem);
+//         await category.save();
+
+//         res.status(201).json({ message: "Item Added Successfully!!!!" });
+//     } catch (err) {
+//         res.status(500).json({ message: "Server error", error: err.message });
+//     }
+// });
+
+router.post('/v1/categories/:id/items', async (req, res) => {
+    const { name, description, instructions, frequency, serviceDate } = req.body;
+
+    // Validate serviceDate and ensure it is provided
+    if (!serviceDate) {
+        return res.status(400).json({ message: "serviceDate is required" });
+    }
+
+    // Convert serviceDate to UTC
+    const serviceDateUTC = new Date(serviceDate);
+    
     // Validate the serviceDate
-    if (isNaN(serviceDate.getTime())) {
+    if (isNaN(serviceDateUTC.getTime())) {
         return res.status(400).json({ message: "Invalid service date format" });
     }
 
     const { id } = req.params;
 
     try {
+        // Check if the category exists
         const category = await Category.findById(id);
         if (!category) {
-            return res.status(400).json({ message: "Category not found!!" });
+            return res.status(404).json({ message: "Category not found" });
         }
 
-        const newItem = { name, description, instructions, workFinish: false, frequency, serviceDate };
+        // Create a new item object
+        const newItem = {
+            name,
+            description,
+            instructions,
+            workFinish: false,
+            frequency,
+            serviceDate: serviceDateUTC, // Store in UTC format
+        };
+
+        // Add the new item to the category
         category.items.push(newItem);
         await category.save();
 
-        res.status(201).json({ message: "Item Added Successfully!!!!" });
+        res.status(201).json({ message: "Item added successfully!" });
     } catch (err) {
+        console.error("Error adding item:", err); // Log the error for debugging
         res.status(500).json({ message: "Server error", error: err.message });
     }
 });
-
 
 router.put('/v1/categories/:categoryId/items/:itemId',async(req,res)=>{
     const {categoryId,itemId}=req.params;
