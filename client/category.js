@@ -121,10 +121,12 @@ async function fetchCategoryItems(categoryId) {
 
             nameWrapper.appendChild(itemName);
 
-            // Flip button to trigger the card flip
+            // Flip button (Counterclockwise arrow)
             const flipButton = document.createElement('button');
-            flipButton.innerText = 'Flip';
+            flipButton.innerHTML = '<i class="bi bi-arrow-counterclockwise"></i>'; // Counterclockwise arrow icon
             flipButton.className = 'btn btn-secondary btn-sm';
+            flipButton.style.backgroundColor = '#d3b195'; // Set your preferred background color
+            flipButton.style.color = '#ffffff'; // Optionally, change text color for contrast
             flipButton.onclick = () => {
                 flipCardInner.classList.toggle('flipped'); // Toggle 'flipped' class on click
             };
@@ -134,8 +136,6 @@ async function fetchCategoryItems(categoryId) {
             cardHeader.appendChild(nameWrapper);
             cardHeader.appendChild(flipButton);
 
-            flipCardFront.appendChild(cardHeader);
-
             // Back of the card
             const flipCardBack = document.createElement('div');
             flipCardBack.className = 'flip-card-back card-body';
@@ -144,31 +144,49 @@ async function fetchCategoryItems(categoryId) {
 
             const description = document.createElement('p');
             description.innerText = `Description: ${item.description || 'No description available'}`;
+            description.style.margin = '10px 0'; // Add margin to create space around the description
 
             const instructions = document.createElement('p');
             instructions.innerText = `Instructions: ${item.instructions || 'No instructions available'}`;
+            instructions.style.margin = '10px 0'; // Add margin to create space around the instructions
 
-            // Flip Back button to flip the card back to the front (aligned left)
+            const frequency = document.createElement('p');
+            frequency.innerText = `Frequency: ${item.frequency}`;
+
+            const serviceDate = document.createElement('p');
+            if (item.serviceDate) {
+                const date = new Date(item.serviceDate); // Convert the string to a Date object
+                serviceDate.innerText = `Service Date: ${date.toLocaleDateString()}`; // Format to only show date
+            } else {
+                serviceDate.innerText = 'Service Date: Not available';
+            }
+
+            // Flip Back button to flip the card back to the front (aligned right)
             const flipBackButton = document.createElement('button');
-            flipBackButton.innerText = 'Flip Back';
-            flipBackButton.className = 'btn btn-secondary btn-sm';
-
+            flipBackButton.innerHTML = '<i class="bi bi-arrow-clockwise"></i>'; // Clockwise arrow icon
+            flipBackButton.className = 'btn btn-secondary btn-sm flip-back-btn'; // Add a new class for positioning
+            flipBackButton.style.backgroundColor = '#d3b195'; // Set your preferred background color
+            flipBackButton.style.color = '#ffffff'; // Optionally, change text color for contrast
             // Flip back on button click
             flipBackButton.onclick = () => {
                 flipCardInner.classList.toggle('flipped'); // Toggle 'flipped' class to return to the front
             };
 
-            // Delete button (aligned right)
+            // Delete button (aligned left)
             const deleteButton = document.createElement('button');
             deleteButton.innerHTML = '<i class="fas fa-trash-alt"></i>'; // Font Awesome trash icon
-            deleteButton.className = 'btn btn-danger btn-sm';
+            deleteButton.className = 'btn btn-danger btn-sm delete-btn'; // Add class for positioning
             deleteButton.onclick = (e) => {
                 e.stopPropagation(); // Prevent event propagation
                 deleteItemFromCategory(categoryId, item._id);
             };
 
-            flipCardBack.appendChild(description);
-            flipCardBack.appendChild(instructions);
+            flipCardFront.appendChild(cardHeader);
+            flipCardFront.appendChild(description);
+            flipCardFront.appendChild(instructions);
+
+            flipCardBack.appendChild(frequency);
+            flipCardBack.appendChild(serviceDate);
             flipCardBack.appendChild(deleteButton);
             flipCardBack.appendChild(flipBackButton);
 
@@ -341,7 +359,7 @@ async function updateDate(categoryId, itemId) {
 async function dateUpdateNext(categoryId, itemId, frequency) {
     try {
         const response = await fetch(`http://localhost:5000/api/v1/categories/${categoryId}/item/${itemId}`);
-        
+
         // Check if the response is ok before parsing
         if (!response.ok) {
             throw new Error("Failed to fetch item data");
@@ -351,19 +369,19 @@ async function dateUpdateNext(categoryId, itemId, frequency) {
         console.log(itemData);
 
         // Check if the item has a valid service date
-        if (!itemData.serviceDate) {
+        if (!itemData.item.serviceDate) {
             console.log("Error: serviceDate is missing.");
             return;
         }
 
         // Check if the item is marked as finished
-        if (!itemData.workFinish) {
+        if (!itemData.item.workFinish) {
             console.log("Error: Item is not marked as finished.");
             return;
         }
 
-        const lastServiceDate = new Date(itemData.serviceDate);
-        
+        const lastServiceDate = new Date(itemData.item.serviceDate);
+
         // Validate lastServiceDate
         if (isNaN(lastServiceDate.getTime())) {
             console.log("Error: Invalid service date format.");

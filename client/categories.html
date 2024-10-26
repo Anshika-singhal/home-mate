@@ -117,7 +117,7 @@
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             background-color: #ffffff;
             /* White background for cards */
-            margin: 20px;
+            margin: 10px 0;
         }
 
         .card-header {
@@ -257,9 +257,9 @@
         /* Adjustments for Flip Cards to match page theme */
         .flip-card {
             background-color: transparent;
-            width: 300px;
+            width: 250px;
             /* Set desired width */
-            height: 400px;
+            height: 200px;
             /* Set desired height */
             perspective: 1000px;
         }
@@ -290,6 +290,8 @@
 
         /* Front of the card with updated background color */
         .flip-card-front {
+
+            /* Add padding to move content away from the border */
             background-color: #e3c9b8;
             /* Updated color for the front */
             color: #333;
@@ -298,9 +300,16 @@
             /* Soft shadow */
         }
 
+        .flip-card-front p {
+            margin-bottom: 10px;
+            /* Add margin between paragraphs */
+            padding-left: 15px;
+            /* Add padding to move content away from the border */
+        }
 
         /* Back of the card with deeper nude shade */
         .flip-card-back {
+            position: relative;
             transform: rotateY(180deg);
             background-color: #bfa284;
             /* Deeper nude for the back */
@@ -339,20 +348,22 @@
             padding: 10px;
         }
 
+        /* Position the delete button at the bottom-left */
         .flip-card-back .delete-btn {
             position: absolute;
-            top: 10px;
-            /* Adjust the vertical distance from the top */
-            right: 10px;
-            /* Align the delete button to the right end */
+            bottom: 10px;
+            /* Place 10px from the bottom */
+            left: 10px;
+            /* Place 10px from the left */
         }
 
-        .flip-card-back .flip-btn {
+        /* Position the flip back button at the bottom-right */
+        .flip-card-back .flip-back-btn {
             position: absolute;
-            top: 10px;
-            /* Adjust the vertical distance from the top */
-            left: 10px;
-            /* Align the flip button to the left end */
+            bottom: 10px;
+            /* Place 10px from the bottom */
+            right: 10px;
+            /* Place 10px from the right */
         }
     </style>
 </head>
@@ -391,15 +402,17 @@
                 <form id="ItemForm">
                     <div class="mb-3">
                         <label for="ItemName" class="form-label">Item Name</label>
-                        <input type="text" class="form-control" id="ItemName" required>
+                        <input type="text" class="form-control" id="ItemName" placeholder="Enter Item Name" required>
                     </div>
                     <div class="mb-3">
                         <label for="ItemDescription" class="form-label">Description</label>
-                        <input class="form-control" id="ItemDescription"></input>
+                        <input class="form-control" id="ItemDescription"
+                            placeholder="Enter Item Description (optional)"></input>
                     </div>
                     <div class="mb-3">
                         <label for="ItemInstruction" class="form-label">Instructions</label>
-                        <textarea class="form-control" id="ItemInstruction"></textarea>
+                        <textarea class="form-control" id="ItemInstruction"
+                            placeholder="Enter Item Instruction (optional)"></textarea>
                     </div>
                     <div class="'mb-3">
                         <label for="ItemFrequency" class="form-label">Select Frequency</label>
@@ -431,6 +444,7 @@
     </div>
 
     <script src="category.js"></script>
+    <script src="dueItem.js"></script>
 </body>
 
 </html>
