@@ -45,6 +45,11 @@ const CategorySchema = new mongoose.Schema({
         required: true,
         unique: true
     },
+    userId: {
+        type: mongoose.Schema.Types.ObjectId, // Reference to the user model
+        ref:'user',
+        required: true
+    },
     CreatedAt: {
         type: Date,
         default: Date.now
@@ -54,5 +59,7 @@ const CategorySchema = new mongoose.Schema({
     ]
 });
 
+// Add a compound index to enforce unique category names per user
+CategorySchema.index({ userId: 1, name: 1 }, { unique: true });
 
 module.exports = mongoose.model('category', CategorySchema);

@@ -46,7 +46,7 @@ userInfo.methods.getJWT = async function () {
     const user = this;
     const token = jwt.sign(
         { _id: user._id },
-        'your_secret_key', // Replace with your actual secret key
+        'shhh', // Replace with your actual secret key
         { expiresIn: '7d' }
     );
     return token;

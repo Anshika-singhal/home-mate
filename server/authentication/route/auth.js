@@ -1,10 +1,12 @@
 const express = require('express');
 const authRouter = express.Router();
 const bcrypt = require('bcrypt');
-const User = require('../models/user'); // Change 'user' to 'User'
+const User = require('../model/user'); // Change 'user' to 'User'
+const {validateSignUpData} = require('../validation/validate');
 
 authRouter.post('/signup', async (req, res) => {
     try {
+        validateSignUpData(req);
         const { firstName, lastName, emailId, password } = req.body;
         const passwordHash = await bcrypt.hash(password, 10);
         const userModel = new User({ firstName, lastName, emailId, password: passwordHash });
