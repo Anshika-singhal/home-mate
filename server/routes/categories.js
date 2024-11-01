@@ -106,7 +106,6 @@ categoryRouter.get('/v1/user/:userId/category/:id', userAuth, async (req, res) =
     }
 });
 
-
 categoryRouter.delete('/v1/user/:userId/category/:id', userAuth, async (req, res) => {
     const { userId, id } = req.params;
     try {
@@ -131,126 +130,163 @@ categoryRouter.delete('/v1/user/:userId/category/:id', userAuth, async (req, res
 
 //----------------------------------------------------------------------------------------------------------------------------------------------------------
 
-// categoryRouter.post('/v1/user/:userId/category/:id/item', userAuth, async (req, res) => {
-//     const { userId, id } = req.params;
-//     const { name, description, instructions, frequency, serviceDate } = req.body;
+categoryRouter.post('/v1/user/:userId/category/:id/item', userAuth, async (req, res) => {
+    const { userId, id } = req.params;
+    const { name, description, instructions, frequency, serviceDate } = req.body;
 
-//     // Validate serviceDate
-//     if (!serviceDate) {
-//         return res.status(400).json({ message: "serviceDate is required" });
-//     }
+    // Validate serviceDate
+    if (!serviceDate) {
+        return res.status(400).json({ message: "serviceDate is required" });
+    }
 
-//     // Convert serviceDate to UTC
-//     const serviceDateUTC = new Date(serviceDate);
+    // Convert serviceDate to UTC
+    const serviceDateUTC = new Date(serviceDate);
 
-//     // Validate the serviceDate format
-//     if (isNaN(serviceDateUTC.getTime())) {
-//         return res.status(400).json({ message: "Invalid service date format" });
-//     }
+    // Validate the serviceDate format
+    if (isNaN(serviceDateUTC.getTime())) {
+        return res.status(400).json({ message: "Invalid service date format" });
+    }
 
-//     try {
-//         // Ensure the authenticated user's ID matches the provided userId
-//         if (!req.user || req.user._id.toString() !== userId) {
-//             return res.status(403).json({ message: "Unauthorized access: User ID does not match the authenticated user." });
-//         }
+    try {
+        // Ensure the authenticated user's ID matches the provided userId
+        if (!req.user || req.user._id.toString() !== userId) {
+            return res.status(403).json({ message: "Unauthorized access: User ID does not match the authenticated user." });
+        }
 
-//         // Check if the category exists and belongs to the authenticated user
-//         const category = await Category.findOne({ _id: id, userId: req.user._id });
-//         if (!category) {
-//             return res.status(404).json({ message: "Category not found or access denied" });
-//         }
+        // Check if the category exists and belongs to the authenticated user
+        const category = await Category.findOne({ _id: id, userId: req.user._id });
+        if (!category) {
+            return res.status(404).json({ message: "Category not found or access denied" });
+        }
 
-//         // Create a new item object
-//         const newItem = {
-//             name,
-//             description,
-//             instructions,
-//             workFinish: false,
-//             frequency,
-//             serviceDate: serviceDateUTC, // Store in UTC format
-//         };
+        // Create a new item object
+        const newItem = {
+            name,
+            description,
+            instructions,
+            workFinish: false,
+            frequency,
+            serviceDate: serviceDateUTC, // Store in UTC format
+        };
 
-//         // Add the new item to the category
-//         category.items.push(newItem);
-//         await category.save();
+        // Add the new item to the category
+        category.items.push(newItem);
+        await category.save();
 
-//         res.status(201).json({ message: "Item added successfully!", item: newItem });
-//     } catch (err) {
-//         console.error("Error adding item:", err); // Log the error for debugging
-//         res.status(500).json({ message: "Server error", error: err.message });
-//     }
-// });
+        res.status(201).json({ message: "Item added successfully!", item: newItem });
+    } catch (err) {
+        console.error("Error adding item:", err); // Log the error for debugging
+        res.status(500).json({ message: "Server error", error: err.message });
+    }
+});
 
-// router.put('/v1/categories/:categoryId/items/:itemId',async(req,res)=>{
-//     const {categoryId,itemId}=req.params;
-//     try{
-//         const category=await Category.findById(categoryId);
-//         if(!category){
-//             return res.status(404).json({message:"Category not found!!"});
-//         }
-//         const item=category.items.id(itemId);
-//         if(!item){
-//             return res.status(404).json({message:"Item not found"});
-//         }
-//         item.workFinish=!item.workFinish;
-//         await category.save();
-//         res.status(200).json({message:"Item updated successfully!",item});
-//     }
-//     catch(error){
-//         res.status(500).json({message:"server error", error:err.message})
-//     }
-// });
+categoryRouter.put('/v1/user/:userId/category/:categoryId/item/:itemId', userAuth, async (req, res) => {
+    const { userId, categoryId, itemId } = req.params;
+    
+    try {
+        // Ensure the authenticated user's ID matches the provided userId
+        if (!req.user || req.user._id.toString() !== userId) {
+            return res.status(403).json({ message: "Unauthorized access: User ID does not match the authenticated user." });
+        }
 
-// router.get('/v1/categories/:id/items',async(req,res)=>{
-//     const {id}=req.params;
-//     try{
-//         const getting=await Category.findById(id);
-//         if(!getting){
-//             return res.status(404).json({message:"Category not found!!"});
-//         }
-//         res.status(200).json({message:"Category found successfully",getting});
+        // Check if the category exists and belongs to the authenticated user
+        const category = await Category.findOne({ _id: categoryId, userId: req.user._id });
+        if (!category) {
+            return res.status(404).json({ message: "Category not found or access denied" });
+        }
+
+        // Find the specific item within the category
+        const item = category.items.id(itemId);
+        if (!item) {
+            return res.status(404).json({ message: "Item not found" });
+        }
+
+        // Toggle the workFinish status
+        item.workFinish = !item.workFinish;
+        await category.save();
+
+        res.status(200).json({ message: "Item updated successfully!", item });
+    } catch (error) {
+        console.error("Error updating item:", error); // Log the error for debugging
+        res.status(500).json({ message: "Server error", error: error.message });
+    }
+});
+
+categoryRouter.get('/v1/user/:userId/category/:categoryId/item', userAuth, async (req, res) => {
+    const { userId, categoryId } = req.params;
+    try {
+        // Ensure the authenticated user's ID matches the provided userId
+        if (!req.user || req.user._id.toString() !== userId) {
+            return res.status(403).json({ message: "Unauthorized access: User ID does not match the authenticated user." });
+        }
+
+        // Find the category for the specific user
+        const category = await Category.findOne({ _id: categoryId, userId: req.user._id });
+        if (!category) {
+            return res.status(404).json({ message: "Category not found!" });
+        }
+
+        // Respond with the items in the category
+        res.status(200).json({ message: "Category found successfully", items: category.items });
+
+    } catch (err) {
+        console.error("Error fetching items:", err); // Log the error for debugging
+        res.status(500).json({ message: "Server error", error: err.message });
+    }
+});
+
+categoryRouter.get('/v1/user/:userId/category/:categoryId/item/:itemId', userAuth, async (req, res) => {
+    const { userId, categoryId, itemId } = req.params;
+    
+    try {
+        // Ensure the authenticated user's ID matches the provided userId
+        if (!req.user || req.user._id.toString() !== userId) {
+            return res.status(403).json({ message: "Unauthorized access: User ID does not match the authenticated user." });
+        }
+
+        // Find the category associated with the user
+        const category = await Category.findOne({ _id: categoryId, userId: req.user._id });
+        if (!category) {
+            return res.status(404).json({ message: "Category not found!" });
+        }
+
+        // Find the specific item within the category
+        const item = category.items.id(itemId);
+        if (!item) {
+            return res.status(404).json({ message: "Item not found in this category!" });
+        }
+
+        res.status(200).json({ message: "Item found successfully", item });
+
+    } catch (err) {
+        console.error("Error fetching item:", err); // Log error for debugging
+        res.status(500).json({ message: "Server error", error: err.message });
+    }
+});
+
+categoryRouter.delete('/v1/user/:userId/category/:categoryId/items',async(req,res)=>{
+    const {userId,categoryId}=req.params;
+    try{
+        // Ensure the authenticated user's ID matches the provided userId
+        if (!req.user || req.user._id.toString() !== userId) {
+            return res.status(403).json({ message: "Unauthorized access: User ID does not match the authenticated user." });
+        }
+
+        // Find the category for the specific user
+        const category = await Category.findOne({ _id: categoryId, userId: req.user._id });
+        if (!category) {
+            return res.status(404).json({ message: "Category not found!" });
+        }
+
+        category.items=[];
+        await category.save();
+        res.status(200).json({message:"All items in the category are deleted successfully"});
 
 
-//     }catch(err){
-//         res.status(500).json({message:"server error", error:err.message})
-//     }
-// });
-
-// router.get('/v1/categories/:categoryId/item/:itemId',async(req,res)=>{
-//     const {categoryId,itemId}=req.params;
-//     try{
-//         const Getting=await Category.findById(categoryId);
-//         if(!Getting){
-//             return res.status(404).json({message:"Category not found!!"});
-//         }
-//         const item=Getting.items.id(itemId);
-//         if(!item){
-//             res.status(404).json({message:"Item not found in this category!!!"});
-//         }
-//         res.status(200).json({message:"Item found successfully",item});
-
-
-//     }catch(err){
-//         res.status(500).json({message:"server error", error:err.message})
-//     }
-// });
-
-// router.delete('/v1/categories/:id/items',async(req,res)=>{
-//     const {id}=req.params;
-//     try{
-//         const deleting=await Category.findById(id);
-//         if(!deleting){
-//             return res.status(404).json({message:"Category not found!!"});
-//         }
-//         deleting.items=[];
-//         await deleting.save();
-//         res.status(200).json({message:"All items in the category are deleted successfully"});
-
-
-//     }catch(err){
-//         res.status(500).json({message:"server error", error:err.message})
-//     }
-// });
+    }catch(err){
+        res.status(500).json({message:"server error", error:err.message})
+    }
+});
 
 // router.delete('/v1/categories/:categoryId/item/:itemId',async(req,res)=>{
 //     const {categoryId,itemId}=req.params;

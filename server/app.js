@@ -8,7 +8,11 @@ const categoryRouter=require('./routes/categories');
 const users = require('./authentication/route/auth');
 const app=express();
 
-app.use(cors());
+app.use(cors({
+    origin: ["http://127.0.0.1:5500", "http://localhost:5000"],
+    credentials:true
+}));
+
 require('dotenv').config();
 const mongourl=process.env.database;
 //work as a middleware
