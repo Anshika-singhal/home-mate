@@ -6,8 +6,16 @@ const {validateSignUpData} = require('../validation/validate');
 
 authRouter.post('/signup', async (req, res) => {
     try {
-        validateSignUpData(req);
+        validateSignUpData(req); // Validate input data
+        
         const { firstName, lastName, emailId, password } = req.body;
+
+        // Check for existing user
+        const existingUser = await User.findOne({ emailId });
+        if (existingUser) {
+            return res.status(400).json({ message: "User already exists with this email!" });
+        }
+
         const passwordHash = await bcrypt.hash(password, 10);
         const userModel = new User({ firstName, lastName, emailId, password: passwordHash });
         const savedUser = await userModel.save();
@@ -15,12 +23,16 @@ authRouter.post('/signup', async (req, res) => {
 
         res.cookie('token', token, {
             expires: new Date(Date.now() + 1 * 360000),
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
         });
+
         res.status(201).json({ data: savedUser, message: "User added successfully!" });
     } catch (err) {
-        res.status(500).json({ message: "Server error", error: err.message });
+        res.status(400).json({ message: err.message || "Server error" }); // Handle specific errors
     }
 });
+
 
 authRouter.post('/login', async (req, res) => {
     try {

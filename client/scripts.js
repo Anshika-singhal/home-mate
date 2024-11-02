@@ -1,6 +1,10 @@
 document.addEventListener('DOMContentLoaded', function () {
     const categoryMessageElement = document.getElementById("categoryMessage");
 
+    function getAuthToken(){
+        return localStorage.getItem("authToken");
+    }
+
     // Add category form submit
     document.getElementById("CategoryForm").addEventListener("submit", async function (e) {
         e.preventDefault(); // Prevent default form submission
@@ -12,12 +16,14 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         const requestBody = { name: CategoryName };
+        const token =getAuthToken();
 
         try {
-            const response = await fetch("http://localhost:5000/api/v1/admin/categories", {
+            const response = await fetch(`http://localhost:5000/api/v1/admin/user/${userId}/category`, {
                 method: "POST",
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'Authorization':`Bearer ${token}`
                 },
                 body: JSON.stringify(requestBody)
             });
@@ -56,7 +62,11 @@ document.addEventListener('DOMContentLoaded', function () {
                 // Clear the message after 3 seconds
                 setTimeout(() => { categoryMessageElement.innerText = ''; }, 3000);
                 fetchCategories(); // Refresh the categories
-            } else {
+            }
+            else if(response.status===401){
+                categoryMessageElement.innerText =  "Unauthorized please login!!!";
+            }
+            else {
                 categoryMessageElement.innerText = result.message || "Failed to create category.";
             }
         } catch (error) {
@@ -66,8 +76,16 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Fetch and display categories
     async function fetchCategories() {
+        const token =getAuthToken();
         try {
-            const response = await fetch('http://localhost:5000/api/v1/categories');
+            const response = await fetch(`http://localhost:5000/api/v1/user/${userId}/category`,{
+                headers:{
+                    'Authorization':`Bearer ${token}`
+                }
+            });
+            if(response.status===401){
+                categoryMessageElement.innerText =  "Unauthorized please login!!!";
+            }
             const Categories = await response.json();
             const CategoryList = document.getElementById('CategoryList');
             CategoryList.innerHTML = ''; // Clear previous list
@@ -122,8 +140,16 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Helper function to fetch incomplete item count for a category
     async function fetchIncompleteItemCount(categoryId) {
+        const token =getAuthToken();
         try {
-            const response = await fetch(`http://localhost:5000/api/v1/categories/${categoryId}/items`);
+            const response = await fetch(`http://localhost:5000/api/v1/user/${userId}/category/${categoryId}/item`,{
+                headers:{
+                    'Authorization':`Bearer ${token}`
+                }
+            });
+            if(response.status===401){
+                categoryMessageElement.innerText =  "Unauthorized please login!!!";
+            }
             const data = await response.json();
 
             const items = data.getting.items || [];
@@ -142,9 +168,13 @@ document.addEventListener('DOMContentLoaded', function () {
         if (!confirm("Are you sure you want to delete this category?")) {
             return; // Exit the function if the user cancels
         }
+        const token =getAuthToken();
         try {
-            const response = await fetch(`http://localhost:5000/api/v1/categories/${categoryId}`, {
+            const response = await fetch(`http://localhost:5000/api/v1/user/${userId}/category/${categoryId}`, {
                 method: 'DELETE',
+                headers:{
+                    'Authorization':`Bearer ${token}`
+                }
             });
 
             if (response.ok) {
@@ -154,7 +184,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 categoryMessageElement.innerText = 'Category deleted successfully!';
                 setTimeout(() => { categoryMessageElement.innerText = ''; }, 3000);
-            } else {
+            }
+            else if(response.status===401){
+                categoryMessageElement.innerText =  "Unauthorized please login!!!";
+            } 
+            else {
                 categoryMessageElement.innerText = 'Failed to delete category.';
             }
         } catch (error) {
