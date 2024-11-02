@@ -38,8 +38,8 @@ authRouter.post('/login', async (req, res) => {
             res.cookie('token', token, {
                 expires: new Date(Date.now() + 1 * 360000),
             });
-            // res.send(user);
-            res.json({firstName:user.firstName, lastName:user.lastName, emailId:user.emailId});
+            res.send(user);
+            // res.json({firstName:user.firstName, lastName:user.lastName, emailId:user.emailId});
         } else {
             res.status(400).json({ message: "Invalid credentials!" });
         }

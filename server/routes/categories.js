@@ -182,7 +182,7 @@ categoryRouter.post('/v1/user/:userId/category/:id/item', userAuth, async (req, 
 
 categoryRouter.put('/v1/user/:userId/category/:categoryId/item/:itemId', userAuth, async (req, res) => {
     const { userId, categoryId, itemId } = req.params;
-    
+
     try {
         // Ensure the authenticated user's ID matches the provided userId
         if (!req.user || req.user._id.toString() !== userId) {
@@ -237,7 +237,7 @@ categoryRouter.get('/v1/user/:userId/category/:categoryId/item', userAuth, async
 
 categoryRouter.get('/v1/user/:userId/category/:categoryId/item/:itemId', userAuth, async (req, res) => {
     const { userId, categoryId, itemId } = req.params;
-    
+
     try {
         // Ensure the authenticated user's ID matches the provided userId
         if (!req.user || req.user._id.toString() !== userId) {
@@ -264,11 +264,12 @@ categoryRouter.get('/v1/user/:userId/category/:categoryId/item/:itemId', userAut
     }
 });
 
-categoryRouter.delete('/v1/user/:userId/category/:categoryId/items',async(req,res)=>{
-    const {userId,categoryId}=req.params;
-    try{
+categoryRouter.delete('/v1/user/:userId/category/:categoryId/items', userAuth, async (req, res) => {
+    const { userId, categoryId } = req.params;
+
+    try {
         // Ensure the authenticated user's ID matches the provided userId
-        if (!req.user || req.user._id.toString() !== userId) {
+        if (req.user._id.toString() !== userId) {
             return res.status(403).json({ message: "Unauthorized access: User ID does not match the authenticated user." });
         }
 
@@ -278,106 +279,138 @@ categoryRouter.delete('/v1/user/:userId/category/:categoryId/items',async(req,re
             return res.status(404).json({ message: "Category not found!" });
         }
 
-        category.items=[];
+        // Clear all items in the category
+        category.items = [];
         await category.save();
-        res.status(200).json({message:"All items in the category are deleted successfully"});
 
-
-    }catch(err){
-        res.status(500).json({message:"server error", error:err.message})
+        res.status(200).json({ message: "All items in the category have been deleted successfully" });
+    } catch (err) {
+        res.status(500).json({ message: "Server error", error: err.message });
     }
 });
 
-// router.delete('/v1/categories/:categoryId/item/:itemId',async(req,res)=>{
-//     const {categoryId,itemId}=req.params;
-//     try{
-//         const Deleting=await Category.findById(categoryId);
-//         if(!Deleting){
-//             return res.status(404).json({message:"Category not found!!"});
-//         }
-//         const itemIndex = Deleting.items.findIndex(item => item._id.toString() === itemId);
-//         if (itemIndex === -1) {
-//             return res.status(404).json({ message: "Item not found in this category!" });
-//         }
-//         Deleting.items.splice(itemIndex, 1);
+categoryRouter.delete('/v1/user/:userId/category/:categoryId/item/:itemId', userAuth, async (req, res) => {
+    const { userId, categoryId, itemId } = req.params;
 
-//         await Deleting.save();
+    try {
+        // Ensure the authenticated user's ID matches the provided userId
+        if (req.user._id.toString() !== userId) {
+            return res.status(403).json({ message: "Unauthorized access: User ID does not match the authenticated user." });
+        }
 
-//         res.status(200).json({message:"Item deleted successfully"});
+        // Find the category by ID and ensure it belongs to the authenticated user
+        const category = await Category.findOne({ _id: categoryId, userId: req.user._id });
+        if (!category) {
+            return res.status(404).json({ message: "Category not found!" });
+        }
 
+        // Find the index of the item within the category's items array
+        const itemIndex = category.items.findIndex(item => item._id.toString() === itemId);
+        if (itemIndex === -1) {
+            return res.status(404).json({ message: "Item not found in this category!" });
+        }
 
-//     }catch(err){
-//         res.status(500).json({message:"server error", error:err.message})
-//     }
-// });
+        // Remove the item from the array
+        category.items.splice(itemIndex, 1);
 
-// // PATCH request to update the serviceDate of an item in a category
-// router.patch('/v1/categories/:categoryId/item/:itemId', async (req, res) => {
-//     const { categoryId, itemId } = req.params;
-//     const  updateDate  = req.body;
+        // Save the updated category
+        await category.save();
 
-//     try {
-//         // Find the category by its ID and also the item inside it
-//         const category = await Category.findById(categoryId);
+        res.status(200).json({ message: "Item deleted successfully" });
+    } catch (err) {
+        res.status(500).json({ message: "Server error", error: err.message });
+    }
+});
 
-//         if (!category) {
-//             return res.status(404).json({ message: "Category not found" });
-//         }
+// PATCH request to update the serviceDate of an item in a category
+categoryRouter.patch('/v1/user/:userId/category/:categoryId/item/:itemId', userAuth, async (req, res) => {
+    const { userId, categoryId, itemId } = req.params;
+    const { serviceDate } = req.body;
 
-//         // Find the specific item within the category
-//         const item = category.items.id(itemId); // Assuming `items` is an array of items in the category
+    try {
+        // Ensure the authenticated user's ID matches the provided userId
+        if (req.user._id.toString() !== userId) {
+            return res.status(403).json({ message: "Unauthorized access: User ID does not match the authenticated user." });
+        }
 
-//         if (!item) {
-//             return res.status(404).json({ message: "Item not found" });
-//         }
+        // Find the category by its ID, ensuring it belongs to the authenticated user
+        const category = await Category.findOne({ _id: categoryId, userId: req.user._id });
 
-//         // // Update the serviceDate if it exists
-//         // if (serviceDate) {
-//         //     item.serviceDate = new Date(serviceDate);
-//         // } else {
-//         //     return res.status(400).json({ message: "Service date is required" });
-//         // }
+        if (!category) {
+            return res.status(404).json({ message: "Category not found" });
+        }
 
-//         item.serviceDate=updateDate.serviceDate;
+        // Find the specific item within the category
+        const item = category.items.id(itemId);
 
-//         // Save the updated category document
-//         await category.save();
+        if (!item) {
+            return res.status(404).json({ message: "Item not found" });
+        }
 
-//         return res.status(200).json({ message: "Service date updated successfully", item });
+        // Update the serviceDate field
+        if (serviceDate) {
+            item.serviceDate = new Date(serviceDate);
+        } else {
+            return res.status(400).json({ message: "Service date is required" });
+        }
 
-//     } catch (error) {
-//         console.error(error);
-//         return res.status(500).json({ message: "Server error", error });
-//     }
-// });
+        // Save the updated category document
+        await category.save();
 
-// //-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        return res.status(200).json({ message: "Service date updated successfully", item });
 
-// router.post('/v1/categories/:categoryId/items/:itemId',async(req,res)=>{
-//     const {lastServiced} = req.body;
-//     const{categoryId,itemId}=req.params;
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: "Server error", error: error.message });
+    }
+});
 
-//     try{
-//         const category=await Category.findById(categoryId);
-//         if(!category){
-//             res.status(400).json({message:"Category not found!!"});
-//         }
-//         const item=await category.items.id(itemId);
-//         if(!item){
-//             res.status(404).json({message:"Item not found in this category!!!"});
-//         }
+//-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-//         // Update the existing item's maintenance data
-//         const ItemMaintenance = { lastServiced };
+categoryRouter.post('/v1/user/:userId/category/:categoryId/item/:itemId', userAuth, async (req, res) => {
+    const { lastServiced } = req.body;
+    const { userId, categoryId, itemId } = req.params;
 
-//         // Push the new maintenance data to the item's ItemMaintainance array
-//         item.ItemMaintainance.push(ItemMaintenance);
+    try {
+        // Ensure the authenticated user's ID matches the provided userId
+        if (req.user._id.toString() !== userId) {
+            return res.status(403).json({ message: "Unauthorized access: User ID does not match the authenticated user." });
+        }
 
-//         await category.save(); // Save the updated category with the modified item
+        // Find the category by its ID, ensuring it belongs to the authenticated user
+        const category = await Category.findOne({ _id: categoryId, userId: req.user._id });
 
-//         res.status(201).json({message:"Item Maintainance Added Successfully!!!!"});
-//     }catch(err){
-//         res.status(500).json({message:"server error", error:err.message})
-//     }
-// });
+        if (!category) {
+            return res.status(404).json({ message: "Category not found!" });
+        }
+
+        // Find the specific item within the category
+        const item = category.items.id(itemId);
+
+        if (!item) {
+            return res.status(404).json({ message: "Item not found in this category!" });
+        }
+
+        // Validate lastServiced data
+        if (!lastServiced) {
+            return res.status(400).json({ message: "Last serviced date is required." });
+        }
+
+        // Update the existing item's maintenance data
+        const ItemMaintenance = { lastServiced: new Date(lastServiced) };
+
+        // Push the new maintenance data to the item's ItemMaintainance array
+        item.ItemMaintainance.push(ItemMaintenance);
+
+        // Save the updated category with the modified item
+        await category.save();
+
+        res.status(201).json({ message: "Item Maintenance added successfully!" });
+
+    } catch (err) {
+        console.error("Error adding item maintenance:", err);
+        res.status(500).json({ message: "Server error", error: err.message });
+    }
+});
+
 module.exports = categoryRouter;
