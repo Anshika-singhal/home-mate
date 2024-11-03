@@ -50,8 +50,11 @@ authRouter.post('/login', async (req, res) => {
             res.cookie('token', token, {
                 expires: new Date(Date.now() + 1 * 360000),
             });
-            res.send(user);
-            // res.json({firstName:user.firstName, lastName:user.lastName, emailId:user.emailId});
+            res.status(200).json({
+                token,
+                firstName: user.firstName,
+                _id: user._id, // Assuming _id is the user ID
+            });
         } else {
             res.status(400).json({ message: "Invalid credentials!" });
         }
@@ -59,6 +62,7 @@ authRouter.post('/login', async (req, res) => {
         res.status(500).json({ message: "Server error", error: err.message });
     }
 });
+
 
 authRouter.post('/logout', async (req, res) => {
     res.cookie('token', null, {

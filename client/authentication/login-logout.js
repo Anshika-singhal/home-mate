@@ -17,7 +17,6 @@ document.addEventListener("DOMContentLoaded", function () {
             if (!response.ok) {
                 let errorMessage = "Something went wrong!";
                 try {
-                    // Try to parse JSON error message if available
                     const errorData = await response.json();
                     errorMessage = errorData.message || errorMessage;
                 } catch (jsonError) {
@@ -26,11 +25,11 @@ document.addEventListener("DOMContentLoaded", function () {
                 throw new Error(errorMessage);
             }
 
-            return await response.json(); // Correctly return JSON data on success
+            return await response.json();
         } catch (err) {
             console.error("API error:", err);
             alert(`Error: ${err.message}`);
-            return null; // Return null so it can be checked in calling functions
+            return null;
         }
     }
 
@@ -48,7 +47,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         if (response) {
             alert("Signup successful! Please log in with your new credentials.");
-            document.getElementById("flip").checked = false; // Flip back to login form
+            document.getElementById("flip").checked = false;
         } else {
             alert("Signup failed. Please try again.");
         }
@@ -64,19 +63,23 @@ document.addEventListener("DOMContentLoaded", function () {
 
         const response = await apiCall("http://localhost:5000/api/login", "POST", data);
 
-        // Display welcome message if login is successful
-        if (response.ok && response.firstName) {
-            const result=await response.json();
-            localStorage.setItem('authToken',result.token)
+        // Check if login was successful by verifying response contains user data
+        if (response && response.token && response.firstName && response._id) {
+            localStorage.setItem('authToken', response.token); // Store token
+            localStorage.setItem('userId',response._id);
+            const userData = {firstName:response.firstName,
+                lastName:response.lastName,
+                emailId:response.emailId,
+            };
+            localStorage.setItem('userData', JSON.stringify(userData)); // Save userId
             alert(`Welcome, ${response.firstName}`);
-            window.location.href="../Home.html";
+            alert(`${response._id}`);
+            window.location.href = `../Home.html?userId=${response.userId}`; // Redirect to Home with userId
         } else if (response) {
+            console.log(response);
             alert("Login successful, but user name is missing from response!");
         } else {
             alert("Login failed. Please check your credentials and try again.");
         }
-        // if (window.location.pathname.includes('../Home.html')) {
-        //     incompleteCountWrapper.style.display = 'block'; // Show the incomplete count on the home page
-        // }
     });
 });

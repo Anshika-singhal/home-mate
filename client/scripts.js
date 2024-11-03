@@ -1,9 +1,25 @@
 document.addEventListener('DOMContentLoaded', function () {
     const categoryMessageElement = document.getElementById("categoryMessage");
 
-    function getAuthToken(){
-        return localStorage.getItem("authToken");
-    }
+    const userData = JSON.parse(localStorage.getItem("userData"));
+    // const userId = localStorage.getItem("userId");
+    // console.log("User ID from localStorage:", userId); // Debugging line
+    // const authToken = localStorage.getItem("authToken");
+    // console.log("Auth Token:", authToken); // Add this line to check the token value
+
+
+    // if (authToken && userData && userId) {
+    //     document.getElementById("Welcome").innerText = `Welcome, ${userData.firstName}`;
+    //     document.getElementById("Welcomes").innerText = `User ID: ${userId}`; // Use userId here
+    // } else {
+    //     window.location.href = "./authentication/login-logout.html";
+    // }
+    // function getAuthToken() {
+    //     return localStorage.getItem("authToken");
+    // }
+    // function getUserId() {
+    //     return localStorage.getItem("userId"); // Retrieve userId
+    // }
 
     // Add category form submit
     document.getElementById("CategoryForm").addEventListener("submit", async function (e) {
@@ -16,14 +32,16 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         const requestBody = { name: CategoryName };
-        const token =getAuthToken();
+        // const authToken = getAuthToken();
+        // const userId = getUserId();
+        const userId = localStorage.getItem("userId");
 
         try {
             const response = await fetch(`http://localhost:5000/api/v1/admin/user/${userId}/category`, {
                 method: "POST",
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization':`Bearer ${token}`
+                    'Authorization': `Bearer ${authToken}`
                 },
                 body: JSON.stringify(requestBody)
             });
@@ -63,8 +81,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 setTimeout(() => { categoryMessageElement.innerText = ''; }, 3000);
                 fetchCategories(); // Refresh the categories
             }
-            else if(response.status===401){
-                categoryMessageElement.innerText =  "Unauthorized please login!!!";
+            else if (response.status === 401) {
+                categoryMessageElement.innerText = "Unauthorized please login!!!";
             }
             else {
                 categoryMessageElement.innerText = result.message || "Failed to create category.";
@@ -76,16 +94,38 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Fetch and display categories
     async function fetchCategories() {
-        const token =getAuthToken();
+        const userId = localStorage.getItem("userId"); // Ensure you retrieve userId here
+        const authToken = localStorage.getItem("authToken"); // Fetch authToken here
+        console.log("Auth Token:", authToken); // Now this should log the token properly
+
+        // Check if userId and token are present
+        if (!userId) {
+            console.error("User ID is undefined. Please log in.");
+            window.location.href = "./authentication/login-logout.html"; // Redirect to login page if not logged in
+            return; // Stop further execution
+        }
+
+        if (!authToken) {
+            console.error("Auth token is undefined. Please log in.");
+            window.location.href = "./authentication/login-logout.html"; // Redirect to login page if not logged in
+            return; // Stop further execution
+        }
         try {
-            const response = await fetch(`http://localhost:5000/api/v1/user/${userId}/category`,{
-                headers:{
-                    'Authorization':`Bearer ${token}`
+            const response = await fetch(`http://localhost:5000/api/v1/user/${userId}/category`, {
+                headers: {
+                    'Authorization': `Bearer ${authToken}`
                 }
             });
-            if(response.status===401){
-                categoryMessageElement.innerText =  "Unauthorized please login!!!";
+
+            if (!response.ok) {
+                const errorText = await response.text(); // Read response as text
+                console.error("Error fetching categories:", errorText);
+                categoryMessageElement.innerText = errorText; // Display the error message
+                return; // Exit if the response is not ok
             }
+
+            // const categories = await response.json(); // Now parse it as JSON if the response is OK
+
             const Categories = await response.json();
             const CategoryList = document.getElementById('CategoryList');
             CategoryList.innerHTML = ''; // Clear previous list
@@ -104,7 +144,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 // Fetch incomplete item count and update the span
                 fetchIncompleteItemCount(category._id).then(incompleteCount => {
-                    incompleteCountSpan.innerText = incompleteCount >= 0 ? incompleteCount : ''; // Show count only if > 0
+                    incompleteCountSpan.innerText = incompleteCount > 0 ? incompleteCount : ''; // Show count only if > 0
                 });
 
                 // Category name span
@@ -135,20 +175,95 @@ document.addEventListener('DOMContentLoaded', function () {
             });
         } catch (error) {
             console.error('Error fetching categories:', error);
+            categoryMessageElement.innerText = "An error occurred while fetching categories.";
         }
     }
 
+    // async function fetchCategories() {
+
+    //     try {
+    //         const response = await fetch(`http://localhost:5000/api/v1/user/${userId}/category`, {
+    //             headers: {
+    //                 'Authorization': `Bearer ${authToken}`
+    //             }
+    //         });
+
+    //         if (!response.ok) {
+    //             if (response.status === 401) {
+    //                 categoryMessageElement.innerText = "Unauthorized please login!!!";
+    //                 //window.location.href = "./authentication/login-logout.html"; // Redirect to login page
+    //             } else {
+    //                 const errorText = await response.text(); // Get error message as text
+    //                 console.error("Error fetching categories:", errorText);
+    //                 categoryMessageElement.innerText = "Failed to fetch categories.";
+    //             }
+    //             return; // Exit if the response is not ok
+    //         }
+
+    //         const Categories = await response.json();
+    //         const CategoryList = document.getElementById('CategoryList');
+    //         CategoryList.innerHTML = ''; // Clear previous list
+
+    //         // Loop through each category and fetch incomplete item count
+    //         Categories.forEach(category => {
+    //             const newCategory = document.createElement('li');
+    //             newCategory.id = category._id;
+    //             newCategory.className = 'list-group-item d-flex justify-content-between align-items-center';
+    //             newCategory.style.cursor = 'pointer';
+
+    //             // Incomplete count span (to be populated later)
+    //             const incompleteCountSpan = document.createElement('span');
+    //             incompleteCountSpan.className = 'badge bg-danger rounded-pill'; // Bootstrap badge for styling
+    //             incompleteCountSpan.innerText = 'Loading...'; // Temporary text while fetching count
+
+    //             // Fetch incomplete item count and update the span
+    //             fetchIncompleteItemCount(category._id).then(incompleteCount => {
+    //                 incompleteCountSpan.innerText = incompleteCount > 0 ? incompleteCount : ''; // Show count only if > 0
+    //             });
+
+    //             // Category name span
+    //             const categoryNameSpan = document.createElement('span');
+    //             categoryNameSpan.innerText = category.name;
+
+    //             newCategory.addEventListener('click', () => {
+    //                 window.location.href = `categories.html?categoryId=${category._id}`; // Redirect with category ID
+    //             });
+
+    //             // Create the delete button
+    //             const deleteButton = document.createElement('button');
+    //             deleteButton.innerHTML = '<i class="fas fa-trash-alt"></i>'; // Using Font Awesome for the trash icon
+    //             deleteButton.className = 'btn btn-danger btn-sm'; // Bootstrap classes for styling
+    //             deleteButton.style.marginLeft = 'auto'; // Push the button to the right
+    //             deleteButton.onclick = (e) => {
+    //                 e.stopPropagation(); // Prevent event propagation
+    //                 deleteCategorybyID(category._id);
+    //             };
+
+    //             // Append the category name, incomplete count, and delete button to the list item
+    //             newCategory.appendChild(incompleteCountSpan); // Display the incomplete item count
+    //             newCategory.appendChild(categoryNameSpan);     // Display the category name next to the count
+    //             newCategory.appendChild(deleteButton);
+
+    //             // Append the new category to the list
+    //             CategoryList.appendChild(newCategory);
+    //         });
+    //     } catch (error) {
+    //         console.error('Error fetching categories:', error);
+    //         categoryMessageElement.innerText = "An error occurred while fetching categories.";
+    //     }
+    // }
+
     // Helper function to fetch incomplete item count for a category
     async function fetchIncompleteItemCount(categoryId) {
-        const token =getAuthToken();
+        const userId = localStorage.getItem("userId");
         try {
-            const response = await fetch(`http://localhost:5000/api/v1/user/${userId}/category/${categoryId}/item`,{
-                headers:{
-                    'Authorization':`Bearer ${token}`
+            const response = await fetch(`http://localhost:5000/api/v1/user/${userId}/category/${categoryId}/item`, {
+                headers: {
+                    'Authorization': `Bearer ${authToken}`
                 }
             });
-            if(response.status===401){
-                categoryMessageElement.innerText =  "Unauthorized please login!!!";
+            if (response.status === 401) {
+                categoryMessageElement.innerText = "Unauthorized please login!!!";
             }
             const data = await response.json();
 
@@ -168,12 +283,12 @@ document.addEventListener('DOMContentLoaded', function () {
         if (!confirm("Are you sure you want to delete this category?")) {
             return; // Exit the function if the user cancels
         }
-        const token =getAuthToken();
+
         try {
-            const response = await fetch(`http://localhost:5000/api/v1/user/${userId}/category/${categoryId}`, {
+            const response = await fetch(`http://localhost:5000/api/v1/user/${getUserId()}/category/${categoryId}`, {
                 method: 'DELETE',
-                headers:{
-                    'Authorization':`Bearer ${token}`
+                headers: {
+                    'Authorization': `Bearer ${authToken}`
                 }
             });
 
@@ -185,9 +300,9 @@ document.addEventListener('DOMContentLoaded', function () {
                 categoryMessageElement.innerText = 'Category deleted successfully!';
                 setTimeout(() => { categoryMessageElement.innerText = ''; }, 3000);
             }
-            else if(response.status===401){
-                categoryMessageElement.innerText =  "Unauthorized please login!!!";
-            } 
+            else if (response.status === 401) {
+                categoryMessageElement.innerText = "Unauthorized please login!!!";
+            }
             else {
                 categoryMessageElement.innerText = 'Failed to delete category.';
             }

@@ -1,6 +1,16 @@
+function getUserId() {
+    return localStorage.getItem("userId"); // Retrieve userId from local storage
+}
+
 async function fetchCategoryDueItem() {
+    const userId = getUserId(); // Retrieve the userId
+    if (!userId) {
+        console.error("User ID is not defined. Please login.");
+        return; // Exit if userId is undefined
+    }
+    
     try {
-        const categoryResponse = await fetch(`http://localhost:5000/api/v1/categories`);
+        const categoryResponse = await fetch(`http://localhost:5000/api/v1/user/${userId}/category`);
         const Categories = await categoryResponse.json();
         const DueItemList = document.getElementById('DueItemList');
         DueItemList.innerHTML = ''; // Clear previous list
@@ -8,7 +18,7 @@ async function fetchCategoryDueItem() {
         const oneDayInMs = 24 * 60 * 60 * 1000;
         for (const category of Categories) {
             const categoryId = category._id;
-            const response = await fetch(`http://localhost:5000/api/v1/categories/${categoryId}/items`);
+            const response = await fetch(`http://localhost:5000/api/v1/user/${userId}/category/${categoryId}/item`);
             const categoryData = await response.json();
             // Check if categoryData.items exists and is an array
             if (!categoryData.getting.items || !Array.isArray(categoryData.getting.items) || !categoryData) {
