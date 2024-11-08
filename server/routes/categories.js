@@ -327,40 +327,45 @@ categoryRouter.patch('/v1/user/:userId/category/:categoryId/item/:itemId', userA
     const { userId, categoryId, itemId } = req.params;
     const { serviceDate } = req.body;
 
+    console.log(`Received request to update service date for user: ${userId}, category: ${categoryId}, item: ${itemId}`);
+
     try {
-        // Ensure the authenticated user's ID matches the provided userId
         if (req.user._id.toString() !== userId) {
+            console.log("Unauthorized access attempt");
             return res.status(403).json({ message: "Unauthorized access: User ID does not match the authenticated user." });
         }
 
-        // Find the category by its ID, ensuring it belongs to the authenticated user
         const category = await Category.findOne({ _id: categoryId, userId: req.user._id });
-
         if (!category) {
+            console.log("Category not found");
             return res.status(404).json({ message: "Category not found" });
         }
 
-        // Find the specific item within the category
         const item = category.items.id(itemId);
-
         if (!item) {
+            console.log("Item not found");
             return res.status(404).json({ message: "Item not found" });
         }
 
-        // Update the serviceDate field
+        if (!item.workFinish) {
+            console.log("Item is not marked as finished. Cannot update service date.");
+            return res.status(400).json({ message: "Item is not marked as finished. Cannot update service date." });
+        }
+
         if (serviceDate) {
+            console.log(`Updating service date to: ${serviceDate}`);
             item.serviceDate = new Date(serviceDate);
         } else {
+            console.log("Service date not provided in request");
             return res.status(400).json({ message: "Service date is required" });
         }
 
-        // Save the updated category document
         await category.save();
-
+        console.log("Service date updated and category saved successfully");
         return res.status(200).json({ message: "Service date updated successfully", item });
 
     } catch (error) {
-        console.error(error);
+        console.error("Server error:", error);
         return res.status(500).json({ message: "Server error", error: error.message });
     }
 });

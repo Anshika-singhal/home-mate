@@ -33,19 +33,30 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 async function fetchCategoryItems(categoryId) {
+    const userId = localStorage.getItem("userId");
+    const authToken = localStorage.getItem("authToken");
+
+    if (!userId || !authToken) {
+        console.error("User ID or auth token is undefined. Redirecting to login.");
+        window.location.href = "./authentication/login-logout.html";
+        return;
+    }
+
     try {
-        const response = await fetch(`http://localhost:5000/api/v1/categories/${categoryId}/items`);
+        const response = await fetch(`http://localhost:5000/api/v1/user/${userId}/category/${categoryId}/item`, {
+            headers: { 'Authorization': `Bearer ${authToken}` }
+        });
         const data = await response.json();
 
-        if (!data || !data.getting) {
+        if (!data ) {
             document.getElementById("categoryContainer").innerText = "No such category found.";
             return;
         }
 
         // Display category name in navbar
-        document.getElementById('categoryName').textContent = data.getting.name;
+        document.getElementById('categoryName').textContent = data.name;
 
-        const items = data.getting.items;
+        const items = data.items;
         const categoryContainer = document.getElementById('categoryContainer');
         categoryContainer.innerHTML = ''; // Clear previous content
 
@@ -153,7 +164,7 @@ async function fetchCategoryItems(categoryId) {
             const frequency = document.createElement('p');
             frequency.innerText = `Frequency: ${item.frequency}`;
 
-            const serviceDate = document.createElement('p');
+            let serviceDate = document.createElement('p');
             if (item.serviceDate) {
                 const date = new Date(item.serviceDate); // Convert the string to a Date object
                 serviceDate.innerText = `Service Date: ${date.toLocaleDateString()}`; // Format to only show date
@@ -261,11 +272,20 @@ async function addItemToCategory(categoryId) {
         serviceDate: ServiceDate
     };
 
+    const userId = localStorage.getItem("userId");
+    const authToken = localStorage.getItem("authToken");
+
+    if (!authToken || !userId) {
+        categoryMessageElement.innerText = "Unauthorized, please login.";
+        return;
+    }
+
     try {
-        const response = await fetch(`http://localhost:5000/api/v1/categories/${categoryId}/items`, {
+        const response = await fetch(`http://localhost:5000/api/v1/user/${userId}/category/${categoryId}/item`, {
             method: "POST",
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${authToken}`
             },
             body: JSON.stringify(requiredData)
         });
@@ -305,9 +325,19 @@ async function addItemToCategory(categoryId) {
 
 // Function to toggle item checkbox (update item status)
 async function toggleCheckBox(categoryId, itemId) {
+    const userId = localStorage.getItem("userId");
+    const authToken = localStorage.getItem("authToken");
+
+    if (!userId || !authToken) {
+        console.error("User ID or auth token is undefined. Redirecting to login.");
+        window.location.href = "./authentication/login-logout.html";
+        return;
+    }
+
     try {
-        const response = await fetch(`http://localhost:5000/api/v1/categories/${categoryId}/items/${itemId}`, {
+        const response = await fetch(`http://localhost:5000/api/v1/user/${userId}/category/${categoryId}/item/${itemId}`, {
             method: 'PUT',
+            headers: { 'Authorization': `Bearer ${authToken}` }
         });
         if (!response.ok) {
             throw new Error("Cannot update the item status!");
@@ -322,9 +352,19 @@ async function deleteItemFromCategory(categoryId, itemId) {
     if (!confirm("Are you sure you want to delete this item?")) {
         return; // Exit the function if the user cancels
     }
+    const userId = localStorage.getItem("userId");
+    const authToken = localStorage.getItem("authToken");
+
+    if (!userId || !authToken) {
+        console.error("User ID or auth token is undefined. Redirecting to login.");
+        window.location.href = "./authentication/login-logout.html";
+        return;
+    }
+
     try {
-        const response = await fetch(`http://localhost:5000/api/v1/categories/${categoryId}/item/${itemId}`, {
-            method: 'DELETE'
+        const response = await fetch(`http://localhost:5000/api/v1/user/${userId}/category/${categoryId}/item/${itemId}`, {
+            method: 'DELETE',
+            headers: { 'Authorization': `Bearer ${authToken}` }
         });
         if (!response.ok) {
             throw new Error("Cannot delete the item!");
@@ -339,13 +379,23 @@ async function deleteItemFromCategory(categoryId, itemId) {
 
 //Function to add lastServiced date in database
 async function updateDate(categoryId, itemId) {
+    const userId = localStorage.getItem("userId");
+    const authToken = localStorage.getItem("authToken");
+
+    if (!userId || !authToken) {
+        console.error("User ID or auth token is undefined. Redirecting to login.");
+        window.location.href = "./authentication/login-logout.html";
+        return;
+    }
+
     try {
-        const response = await fetch(`http://localhost:5000/api/v1/categories/${categoryId}/items/${itemId}`, {
+        const response = await fetch(`http://localhost:5000/api/v1/user/${userId}/category/${categoryId}/item/${itemId}`, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${authToken}` 
             },
-            body: JSON.stringify({ lastServiced: new Date().toString() }),
+            body: JSON.stringify({ lastServiced: new Date().toISOString() }),
         });
         if (!response.ok) {
             throw new Error("Cannot update the item status!");
@@ -357,78 +407,90 @@ async function updateDate(categoryId, itemId) {
 //undone work
 
 async function dateUpdateNext(categoryId, itemId, frequency) {
+    const userId = localStorage.getItem("userId");
+    const authToken = localStorage.getItem("authToken");
+
+    if (!userId || !authToken) {
+        console.error("User ID or auth token is undefined. Redirecting to login.");
+        window.location.href = "./authentication/login-logout.html";
+        return;
+    }
+
     try {
-        const response = await fetch(`http://localhost:5000/api/v1/categories/${categoryId}/item/${itemId}`);
+        console.log(`Fetching item details for category ${categoryId} and item ${itemId}`);
+        const response = await fetch(`http://localhost:5000/api/v1/user/${userId}/category/${categoryId}/item/${itemId}`, {
+            headers: { 'Authorization': `Bearer ${authToken}` }
+        });
 
-        // Check if the response is ok before parsing
         if (!response.ok) {
-            throw new Error("Failed to fetch item data");
-        }
-
-        const itemData = await response.json();
-        console.log(itemData);
-
-        // Check if the item has a valid service date
-        if (!itemData.item.serviceDate) {
-            console.log("Error: serviceDate is missing.");
+            console.error("Failed to fetch item data", response.statusText);
             return;
         }
 
-        // Check if the item is marked as finished
+        const itemData = await response.json();
+        console.log("Item data fetched:", itemData);
+
         if (!itemData.item.workFinish) {
-            console.log("Error: Item is not marked as finished.");
+            console.log("Item is not marked as finished. Skipping update.");
             return;
         }
 
         const lastServiceDate = new Date(itemData.item.serviceDate);
-
-        // Validate lastServiceDate
         if (isNaN(lastServiceDate.getTime())) {
             console.log("Error: Invalid service date format.");
             return;
         }
 
-        const oneDayInMs = 24 * 60 * 60 * 1000;
-        let nextServiceDate;
+        const nextServiceDate = calculateNextServiceDate(lastServiceDate, frequency);
+        console.log(`Next service date calculated: ${nextServiceDate}`);
 
-        // Calculate the next service date based on frequency
-        switch (frequency) {
-            case 'daily':
-                nextServiceDate = new Date(lastServiceDate.getTime() + oneDayInMs);
-                break;
-            case 'weekly':
-                nextServiceDate = new Date(lastServiceDate.getTime() + oneDayInMs * 7);
-                break;
-            case 'monthly':
-                nextServiceDate = new Date(lastServiceDate.setMonth(lastServiceDate.getMonth() + 1));
-                break;
-            case 'yearly':
-                nextServiceDate = new Date(lastServiceDate.setFullYear(lastServiceDate.getFullYear() + 1));
-                break;
-            default:
-                console.log("Invalid frequency selected");
-                return;
-        }
-
-        // Prepare the update for the next service date
-        const updateDate = { serviceDate: nextServiceDate.toISOString() };
-
-        // Send the PATCH request to update the next service date
-        const updateResponse = await fetch(`http://localhost:5000/api/v1/categories/${categoryId}/item/${itemId}`, {
+        const updateResponse = await fetch(`http://localhost:5000/api/v1/user/${userId}/category/${categoryId}/item/${itemId}`, {
             method: "PATCH",
             headers: {
                 'Content-Type': 'application/json',
+                'Authorization': `Bearer ${authToken}`
             },
-            body: JSON.stringify(updateDate),
+            body: JSON.stringify({ serviceDate: nextServiceDate.toISOString() }),
         });
 
-        // Check if the update response is ok
         if (!updateResponse.ok) {
-            throw new Error("Failed to update next service date");
+            console.error("Failed to update next service date", updateResponse.statusText);
+            return;
         }
 
-        console.log(`Updated service date for item ${itemId} to ${nextServiceDate.toLocaleDateString()}`);
+        console.log(`Updated service date for item ${itemId} successfully`);
+        // Update the card's date element without refreshing the page
+        const dateElement = document.querySelector(`#item-${itemId} .service-date`);
+        if (dateElement) {
+            dateElement.textContent = `Next Service Date: ${nextServiceDate.toLocaleDateString()}`;
+        }
+
     } catch (error) {
         console.error(`Error updating next service date: ${error.message}`);
     }
+}
+
+function calculateNextServiceDate(lastServiceDate, frequency) {
+    const oneDayInMs = 24 * 60 * 60 * 1000;
+    let nextServiceDate;
+
+    switch (frequency) {
+        case 'daily':
+            nextServiceDate = new Date(lastServiceDate.getTime() + oneDayInMs);
+            break;
+        case 'weekly':
+            nextServiceDate = new Date(lastServiceDate.getTime() + oneDayInMs * 7);
+            break;
+        case 'monthly':
+            nextServiceDate = new Date(lastServiceDate.setMonth(lastServiceDate.getMonth() + 1));
+            break;
+        case 'yearly':
+            nextServiceDate = new Date(lastServiceDate.setFullYear(lastServiceDate.getFullYear() + 1));
+            break;
+        default:
+            console.log("Invalid frequency selected");
+            return null;
+    }
+
+    return nextServiceDate;
 }

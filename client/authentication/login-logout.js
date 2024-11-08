@@ -73,7 +73,6 @@ document.addEventListener("DOMContentLoaded", function () {
             };
             localStorage.setItem('userData', JSON.stringify(userData)); // Save userId
             alert(`Welcome, ${response.firstName}`);
-            alert(`${response._id}`);
             window.location.href = `../Home.html?userId=${response.userId}`; // Redirect to Home with userId
         } else if (response) {
             console.log(response);

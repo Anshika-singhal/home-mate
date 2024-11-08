@@ -3,13 +3,17 @@ const User = require('../model/user'); // Ensure the model name is capitalized
 
 const userAuth = async (req, res, next) => {
     try {
-        const { token } = req.cookies; // Ensure you're sending the token in cookies
+        const authHeader = req.headers['authorization']; // Get the Authorization header
+        const token = authHeader && authHeader.split(' ')[1]; // Extract token after "Bearer"
         if (!token) {
             return res.status(401).send("Please login"); // Use 401 for unauthorized
         }
         
         // Verify the token
-        const decodeObject = jwt.verify(token, process.env.JWT_SECRET); // Use an environment variable for the secret
+        const decodeObject = jwt.decode(token); 
+        if(!decodeObject){
+            return res.status(401).send("invalid token")        
+        }
         const { _id } = decodeObject;
 
         // Find the user in the database
