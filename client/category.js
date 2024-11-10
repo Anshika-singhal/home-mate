@@ -457,6 +457,7 @@ async function dateUpdateNext(categoryId, itemId, frequency) {
             console.error("Failed to update next service date", updateResponse.statusText);
             return;
         }
+        fetchCategoryItems(categoryId);
 
         console.log(`Updated service date for item ${itemId} successfully`);
         // Update the card's date element without refreshing the page
