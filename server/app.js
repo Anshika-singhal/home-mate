@@ -6,6 +6,7 @@ var cookieParser = require('cookie-parser');
 const axios = require('axios');
 const categoryRouter=require('./routes/categories');
 const users = require('./authentication/route/auth');
+const controller=require('./controller/authController');
 const app=express();
 
 app.use(cors({
@@ -21,6 +22,7 @@ app.use(cookieParser());
 app.use(express.json());
 app.use('/api',users);
 app.use('/api',categoryRouter);
+app.use('/api',controller);
 //mongoose.connect
 mongoose.connect(mongourl)
 .then(()=>console.log('mongoDb contted'))
