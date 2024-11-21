@@ -38,7 +38,7 @@ async function fetchCategoryItems(categoryId) {
 
     if (!userId || !authToken) {
         console.error("User ID or auth token is undefined. Redirecting to login.");
-        window.location.href = "./authentication/login-logout.html";
+        window.location.href = "./index.html";
         return;
     }
 
@@ -330,7 +330,7 @@ async function toggleCheckBox(categoryId, itemId) {
 
     if (!userId || !authToken) {
         console.error("User ID or auth token is undefined. Redirecting to login.");
-        window.location.href = "./authentication/login-logout.html";
+        window.location.href = "./index.html";
         return;
     }
 
@@ -357,7 +357,7 @@ async function deleteItemFromCategory(categoryId, itemId) {
 
     if (!userId || !authToken) {
         console.error("User ID or auth token is undefined. Redirecting to login.");
-        window.location.href = "./authentication/login-logout.html";
+        window.location.href = "./index.html";
         return;
     }
 
@@ -384,7 +384,7 @@ async function updateDate(categoryId, itemId) {
 
     if (!userId || !authToken) {
         console.error("User ID or auth token is undefined. Redirecting to login.");
-        window.location.href = "./authentication/login-logout.html";
+        window.location.href = "./index.html";
         return;
     }
 
@@ -412,7 +412,7 @@ async function dateUpdateNext(categoryId, itemId, frequency) {
 
     if (!userId || !authToken) {
         console.error("User ID or auth token is undefined. Redirecting to login.");
-        window.location.href = "./authentication/login-logout.html";
+        window.location.href = "./index.html";
         return;
     }
 

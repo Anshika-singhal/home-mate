@@ -7,7 +7,7 @@ async function fetchCategoryDueItem() {
     // Check if userId and token are present
     if (!userId || !authToken) {
         console.error("User ID or Auth token is missing. Redirecting to login page.");
-        window.location.href = "./authentication/login-logout.html";
+        window.location.href = "./index.html";
         return;
     }
 

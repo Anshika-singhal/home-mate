@@ -25,7 +25,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 localStorage.removeItem("userData");
 
                 // Redirect to the login page or display a message
-                window.location.href = "./authentication/login-logout.html";
+                window.location.href = "./index.html";
             } else {
                 console.error("Logout failed.");
                 alert("Logout failed, please try again.");
@@ -112,7 +112,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         if (!userId || !authToken) {
             console.error("User ID or auth token is undefined. Redirecting to login.");
-            window.location.href = "./authentication/login-logout.html";
+            window.location.href = "./index.html";
             return;
         }
 
