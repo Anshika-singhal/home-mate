@@ -18,7 +18,7 @@ const forgotPassword = async (req, res) => {
         const resetToken = Buffer.from(JSON.stringify({ _id: user._id, exp: Date.now() + 15 * 60 * 1000 })).toString('base64');
 
         // Construct reset URL
-        const resetUrl = `http://localhost:5000/resetPassword/${resetToken}`;
+        const resetUrl = `https://home-mate-server-ekkv.onrender.com/resetPassword/${resetToken}`;
 
         console.log("Creating transporter...");
         console.log("Gmail:", process.env.gmail);

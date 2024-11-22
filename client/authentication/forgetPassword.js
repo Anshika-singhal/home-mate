@@ -1,4 +1,4 @@
-const url='http://localhost:5000/api';
+const url='https://home-mate-server-ekkv.onrender.com/api';
 async function forgotPassword(){
     const email=document.getElementById('email').value;
     if(!email){

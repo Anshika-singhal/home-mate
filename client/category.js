@@ -43,7 +43,7 @@ async function fetchCategoryItems(categoryId) {
     }
 
     try {
-        const response = await fetch(`http://localhost:5000/api/v1/user/${userId}/category/${categoryId}/item`, {
+        const response = await fetch(`https://home-mate-server-ekkv.onrender.com/api/v1/user/${userId}/category/${categoryId}/item`, {
             headers: { 'Authorization': `Bearer ${authToken}` }
         });
         const data = await response.json();
@@ -281,7 +281,7 @@ async function addItemToCategory(categoryId) {
     }
 
     try {
-        const response = await fetch(`http://localhost:5000/api/v1/user/${userId}/category/${categoryId}/item`, {
+        const response = await fetch(`https://home-mate-server-ekkv.onrender.com/api/v1/user/${userId}/category/${categoryId}/item`, {
             method: "POST",
             headers: {
                 'Content-Type': 'application/json',
@@ -335,7 +335,7 @@ async function toggleCheckBox(categoryId, itemId) {
     }
 
     try {
-        const response = await fetch(`http://localhost:5000/api/v1/user/${userId}/category/${categoryId}/item/${itemId}`, {
+        const response = await fetch(`https://home-mate-server-ekkv.onrender.com/api/v1/user/${userId}/category/${categoryId}/item/${itemId}`, {
             method: 'PUT',
             headers: { 'Authorization': `Bearer ${authToken}` }
         });
@@ -362,7 +362,7 @@ async function deleteItemFromCategory(categoryId, itemId) {
     }
 
     try {
-        const response = await fetch(`http://localhost:5000/api/v1/user/${userId}/category/${categoryId}/item/${itemId}`, {
+        const response = await fetch(`https://home-mate-server-ekkv.onrender.com/api/v1/user/${userId}/category/${categoryId}/item/${itemId}`, {
             method: 'DELETE',
             headers: { 'Authorization': `Bearer ${authToken}` }
         });
@@ -389,7 +389,7 @@ async function updateDate(categoryId, itemId) {
     }
 
     try {
-        const response = await fetch(`http://localhost:5000/api/v1/user/${userId}/category/${categoryId}/item/${itemId}`, {
+        const response = await fetch(`https://home-mate-server-ekkv.onrender.com/api/v1/user/${userId}/category/${categoryId}/item/${itemId}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -418,7 +418,7 @@ async function dateUpdateNext(categoryId, itemId, frequency) {
 
     try {
         console.log(`Fetching item details for category ${categoryId} and item ${itemId}`);
-        const response = await fetch(`http://localhost:5000/api/v1/user/${userId}/category/${categoryId}/item/${itemId}`, {
+        const response = await fetch(`https://home-mate-server-ekkv.onrender.com/api/v1/user/${userId}/category/${categoryId}/item/${itemId}`, {
             headers: { 'Authorization': `Bearer ${authToken}` }
         });
 
@@ -444,7 +444,7 @@ async function dateUpdateNext(categoryId, itemId, frequency) {
         const nextServiceDate = calculateNextServiceDate(lastServiceDate, frequency);
         console.log(`Next service date calculated: ${nextServiceDate}`);
 
-        const updateResponse = await fetch(`http://localhost:5000/api/v1/user/${userId}/category/${categoryId}/item/${itemId}`, {
+        const updateResponse = await fetch(`https://home-mate-server-ekkv.onrender.com/api/v1/user/${userId}/category/${categoryId}/item/${itemId}`, {
             method: "PATCH",
             headers: {
                 'Content-Type': 'application/json',

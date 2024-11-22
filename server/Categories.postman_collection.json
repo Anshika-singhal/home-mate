@@ -50,7 +50,7 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:5000/api/categories/v1/admin/categories",
+					"raw": "https://home-mate-server-ekkv.onrender.com/api/categories/v1/admin/categories",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -101,7 +101,7 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:5000/api/categories/v1/admin/categories",
+					"raw": "https://home-mate-server-ekkv.onrender.com/api/categories/v1/admin/categories",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -152,7 +152,7 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:5000/api/categories/v1/admin/categories",
+					"raw": "https://home-mate-server-ekkv.onrender.com/api/categories/v1/admin/categories",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -204,7 +204,7 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:5000/api/categories/v1/admin/categories",
+					"raw": "https://home-mate-server-ekkv.onrender.com/api/categories/v1/admin/categories",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -260,7 +260,7 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:5000/api/categories/v1/admin/categories",
+					"raw": "https://home-mate-server-ekkv.onrender.com/api/categories/v1/admin/categories",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -335,7 +335,7 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:5000/api/categories/v1/admin/categories",
+					"raw": "https://home-mate-server-ekkv.onrender.com/api/categories/v1/admin/categories",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -391,7 +391,7 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:5000/api/categories/v1/admin/categories",
+					"raw": "https://home-mate-server-ekkv.onrender.com/api/categories/v1/admin/categories",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -435,7 +435,7 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://localhost:5000/api/categories/v1/categories/66e933f5dcef86a9757e418f",
+					"raw": "https://home-mate-server-ekkv.onrender.com/api/categories/v1/categories/66e933f5dcef86a9757e418f",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -485,7 +485,7 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://localhost:5000/api/categories/v1/categories",
+					"raw": "https://home-mate-server-ekkv.onrender.com/api/categories/v1/categories",
 					"protocol": "http",
 					"host": [
 						"localhost"

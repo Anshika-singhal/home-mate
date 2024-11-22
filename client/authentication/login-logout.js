@@ -43,7 +43,7 @@ document.addEventListener("DOMContentLoaded", function () {
         const password = document.getElementById("passwords").value;
         const data = { firstName, lastName, emailId, password };
 
-        const response = await apiCall("http://localhost:5000/api/signup", "POST", data);
+        const response = await apiCall("https://home-mate-server-ekkv.onrender.com/api/signup", "POST", data);
 
         if (response) {
             alert("Signup successful! Please log in with your new credentials.");
@@ -61,7 +61,7 @@ document.addEventListener("DOMContentLoaded", function () {
         const password = document.getElementById("password").value;
         const data = { emailId, password };
 
-        const response = await apiCall("http://localhost:5000/api/login", "POST", data);
+        const response = await apiCall("https://home-mate-server-ekkv.onrender.com/api/login", "POST", data);
 
         // Check if login was successful by verifying response contains user data
         if (response && response.token && response.firstName && response._id) {
@@ -73,7 +73,7 @@ document.addEventListener("DOMContentLoaded", function () {
             };
             localStorage.setItem('userData', JSON.stringify(userData)); // Save userId
             alert(`Welcome, ${response.firstName}`);
-            window.location.href = `../Home.html?userId=${response.userId}`; // Redirect to Home with userId
+            window.location.href = `./Home.html?userId=${response.userId}`; // Redirect to Home with userId
         } else if (response) {
             console.log(response);
             alert("Login successful, but user name is missing from response!");

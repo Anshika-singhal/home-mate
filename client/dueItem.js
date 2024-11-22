@@ -13,7 +13,7 @@ async function fetchCategoryDueItem() {
 
     try {
         // Fetch categories
-        const categoryResponse = await fetch(`http://localhost:5000/api/v1/user/${userId}/category`, {
+        const categoryResponse = await fetch(`https://home-mate-server-ekkv.onrender.com/api/v1/user/${userId}/category`, {
             headers: {
                 'Authorization': `Bearer ${authToken}`
             }
@@ -37,7 +37,7 @@ async function fetchCategoryDueItem() {
         for (const category of categories) {
             const categoryId = category._id;
 
-            const itemResponse = await fetch(`http://localhost:5000/api/v1/user/${userId}/category/${categoryId}/item`, {
+            const itemResponse = await fetch(`https://home-mate-server-ekkv.onrender.com/api/v1/user/${userId}/category/${categoryId}/item`, {
                 headers: {
                     'Authorization': `Bearer ${authToken}`
                 }

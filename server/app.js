@@ -11,7 +11,7 @@ const controller=require('./controller/authController');
 const app=express();
 
 app.use(cors({
-    origin: ["http://127.0.0.1:5500", "http://localhost:5000"],
+    origin: ["http://127.0.0.1:5500", "https://home-mate-server-ekkv.onrender.com"],
     credentials:true
 }));
 

@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', function () {
             return;
         }
         try {
-            const response = await fetch('http://localhost:5000/api/logout', {
+            const response = await fetch('https://home-mate-server-ekkv.onrender.com/api/logout', {
                 method: 'POST',
                 credentials: 'include', // Ensures cookies are sent with the request
                 headers: {
@@ -59,7 +59,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         try {
-            const response = await fetch(`http://localhost:5000/api/v1/admin/user/${userId}/category`, {
+            const response = await fetch(`https://home-mate-server-ekkv.onrender.com/api/v1/admin/user/${userId}/category`, {
                 method: "POST",
                 headers: {
                     'Content-Type': 'application/json',
@@ -117,7 +117,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         try {
-            const response = await fetch(`http://localhost:5000/api/v1/user/${userId}/category`, {
+            const response = await fetch(`https://home-mate-server-ekkv.onrender.com/api/v1/user/${userId}/category`, {
                 headers: { 'Authorization': `Bearer ${authToken}` }
             });
 
@@ -196,7 +196,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         try {
-            const response = await fetch(`http://localhost:5000/api/v1/user/${userId}/category/${categoryId}/item`, {
+            const response = await fetch(`https://home-mate-server-ekkv.onrender.com/api/v1/user/${userId}/category/${categoryId}/item`, {
                 headers: { 'Authorization': `Bearer ${authToken}` }
             });
 
@@ -225,7 +225,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         try {
-            const response = await fetch(`http://localhost:5000/api/v1/user/${userId}/category/${categoryId}`, {
+            const response = await fetch(`https://home-mate-server-ekkv.onrender.com/api/v1/user/${userId}/category/${categoryId}`, {
                 method: 'DELETE',
                 headers: { 'Authorization': `Bearer ${authToken}` }
             });
