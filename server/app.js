@@ -60,12 +60,14 @@ const app = express();
 //   ? ["https://home-mate-w83w.onrender.com"] // production domain
 //   : ["http://127.0.0.1:5500", "http://localhost:3000"]; // local development
 
-  app.use(cors({
-    origin: ['https://home-mate-w83w.onrender.com', 'http://127.0.0.1:5500'], // Add all the valid domains
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], // Explicitly allow methods
-    allowedHeaders: ['Content-Type', 'Authorization'], // Allow headers
+const corsOptions = {
+    origin: ["https://home-mate-w83w.onrender.com", "http://127.0.0.1:5500"], // Allow both local and deployed frontend
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], // Allowed HTTP methods
+    allowedHeaders: ['Content-Type', 'Authorization'], // Allowed headers
     credentials: true // Allow cookies and credentials
-}));
+};
+app.use(cors(corsOptions));
+
 
 const mongourl = process.env.DATABASE_URL; // Ensure DATABASE_URL is defined in .env file
 
