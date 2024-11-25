@@ -154,12 +154,13 @@ async function fetchCategoryItems(categoryId) {
             flipCardBack.style.color = '#ffffff'; // White text
 
             const description = document.createElement('p');
-            description.innerText = `Description: ${item.description || 'No description available'}`;
+            description.innerText = `${item.description || 'No description available'}`;
             description.style.margin = '10px 0'; // Add margin to create space around the description
 
             const instructions = document.createElement('p');
-            instructions.innerText = `Instructions: ${item.instructions || 'No instructions available'}`;
+            instructions.innerText = `${item.instructions || 'No instructions available'}`;
             instructions.style.margin = '10px 0'; // Add margin to create space around the instructions
+            
 
             const frequency = document.createElement('p');
             frequency.innerText = `Frequency: ${item.frequency}`;
