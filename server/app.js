@@ -56,13 +56,15 @@ const controller = require('./controller/authController');
 const app = express();
 
 // Set CORS dynamically based on the environment (local or production)
-const allowedOrigins = process.env.NODE_ENV === 'production'
-  ? ["https://home-mate-w83w.onrender.com"] // production domain
-  : ["http://127.0.0.1:5500", "http://localhost:3000"]; // local development
+// const allowedOrigins = process.env.NODE_ENV === 'production'
+//   ? ["https://home-mate-w83w.onrender.com"] // production domain
+//   : ["http://127.0.0.1:5500", "http://localhost:3000"]; // local development
 
-app.use(cors({
-    origin: allowedOrigins,
-    credentials: true // Allow credentials (cookies)
+  app.use(cors({
+    origin: ['https://home-mate-w83w.onrender.com', 'http://127.0.0.1:5500'], // Add all the valid domains
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], // Explicitly allow methods
+    allowedHeaders: ['Content-Type', 'Authorization'], // Allow headers
+    credentials: true // Allow cookies and credentials
 }));
 
 const mongourl = process.env.DATABASE_URL; // Ensure DATABASE_URL is defined in .env file
