@@ -1,9 +1,9 @@
 const url='https://home-mate-server-ekkv.onrender.com/api';
 async function forgotPassword(){
     const email=document.getElementById('email').value;
-    if(!email){
-        alert("Enter valid emailId");
-    }
+    // if(!email){
+    //     alert("Enter valid emailId");
+    // }
     try{
         const response = await fetch(`${url}/forgotPassword`, {
             method: "POST",
@@ -21,7 +21,7 @@ async function forgotPassword(){
         }
 
         const result = await response.json();
-        alert(result.message || "Reset password email sent successfully!");
+        // alert(result.message || "Reset password email sent successfully!");
 
         // Hide the forgot password form, show reset password form if necessary
         document.getElementById('forgotPassword').style.display = 'none';
@@ -29,7 +29,7 @@ async function forgotPassword(){
     }
     catch(err){
         console.error('Error in forgotPassword:', err);
-        alert(`Error: ${err.message}`);
+        // alert(`Error: ${err.message}`);
     }
 }
 
@@ -38,7 +38,7 @@ async function resetPassword(){
     const token =window.location.pathname.split('/')[2];
 
     if (!token || !newPassword) {
-        alert('Invalid input. Token or password is missing.');
+        // alert('Invalid input. Token or password is missing.');
         return;
     }
 
@@ -58,7 +58,7 @@ async function resetPassword(){
         }
 
         const result = await response.json();
-        alert(result.message || "Password reset successfully!");
+        // alert(result.message || "Password reset successfully!");
 
         // Optionally, redirect to login page
         window.location.href = "/index.html";
@@ -66,6 +66,6 @@ async function resetPassword(){
     }
     catch(err){
         console.error('Error in resetPassword:', err);
-        alert(`Error: ${err.message}`);
+        // alert(`Error: ${err.message}`);
     }
 }
