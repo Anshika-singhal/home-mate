@@ -49,27 +49,27 @@ const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
-const axios = require('axios');
 const categoryRouter = require('./routes/categories');
 const users = require('./authentication/route/auth');
 const controller = require('./controller/authController');
 const app = express();
 
-// Set CORS dynamically based on the environment (local or production)
-// const allowedOrigins = process.env.NODE_ENV === 'production'
-//   ? ["https://home-mate-w83w.onrender.com"] // production domain
-//   : ["http://127.0.0.1:5500", "http://localhost:3000"]; // local development
-
+// Dynamic CORS configuration
 const corsOptions = {
-    origin: ["https://home-mate-w83w.onrender.com", "http://127.0.0.1:5500"], // Allow both local and deployed frontend
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], // Allowed HTTP methods
-    allowedHeaders: ['Content-Type', 'Authorization'], // Allowed headers
-    credentials: true // Allow cookies and credentials
+    origin: (origin, callback) => {
+        const allowedOrigins = ["https://home-mate-w83w.onrender.com", "http://127.0.0.1:5500"];
+        if (!origin || allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            callback(new Error("Not allowed by CORS"));
+        }
+    },
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true,
 };
 app.use(cors(corsOptions));
-
-
-const mongourl = process.env.DATABASE_URL; // Ensure DATABASE_URL is defined in .env file
+app.options('*', cors(corsOptions)); // Handle preflight requests
 
 // Middleware
 app.use(bodyParser.json());
@@ -77,16 +77,37 @@ app.use(cookieParser());
 app.use(express.json());
 
 // Routes
-app.use('/api', users); // Authentication routes
-app.use('/api', categoryRouter); // Categories routes
+app.use('/api', users);
+app.use('/api', categoryRouter);
 app.use('/api/forgotPassword', controller.forgotPassword);
 app.use('/api/resetPassword', controller.resetPassword);
 
 // MongoDB Connection
-mongoose.connect(mongourl, { useNewUrlParser: true, useUnifiedTopology: true })
-  .then(() => console.log('MongoDB connected'))
-  .catch(err => console.log('MongoDB connection error:', err));
+const mongourl = process.env.DATABASE_URL;
+mongoose.connect(mongourl, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+    useCreateIndex: true,
+    serverSelectionTimeoutMS: 5000,
+}).then(() => {
+    console.log('MongoDB connected');
+}).catch(err => {
+    console.error('MongoDB connection error:', err);
+});
 
-// Server Listening
+// Debug Incoming Requests
+app.use((req, res, next) => {
+    console.log(`Incoming Request - Origin: ${req.headers.origin}, Method: ${req.method}`);
+    console.log('Headers:', req.headers);
+    next();
+});
+
+// Error Handling Middleware
+app.use((err, req, res, next) => {
+    console.error('Error:', err.stack);
+    res.status(500).send('Something went wrong!');
+});
+
+// Start Server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
