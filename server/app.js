@@ -58,7 +58,7 @@ const app = express();
 const corsOptions = {
     origin: (origin, callback) => {
         console.log(`CORS origin check: ${origin}`);
-        const allowedOrigins = ["https://home-mate-w83w.onrender.com", "http://127.0.0.1:5500"];
+        const allowedOrigins = ["https://home-mate-beta.vercel.app/", "http://127.0.0.1:5500"];
         if (!origin || allowedOrigins.includes(origin)) {
             callback(null, true);
         } else {
