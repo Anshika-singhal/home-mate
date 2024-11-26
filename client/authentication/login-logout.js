@@ -8,11 +8,8 @@ document.addEventListener("DOMContentLoaded", function () {
             const response = await fetch(url, {
                 method,
                 headers: {
-                    "Access-Control-Allow-Headers" : "Content-Type",
-                    "Access-Control-Allow-Origin": "https://home-mate-server-ekkv.onrender.com",
                     'Content-Type': 'application/json',
-                    "Access-Control-Allow-Methods": "OPTIONS,POST,GET,PATCH"
-               },
+                },
                 body: JSON.stringify(data),
                 credentials: 'include'
             });

@@ -57,19 +57,22 @@ const app = express();
 // Dynamic CORS configuration
 const corsOptions = {
     origin: (origin, callback) => {
+        console.log(`CORS origin check: ${origin}`);
         const allowedOrigins = ["https://home-mate-w83w.onrender.com", "http://127.0.0.1:5500"];
         if (!origin || allowedOrigins.includes(origin)) {
             callback(null, true);
         } else {
+            console.error(`Blocked by CORS: ${origin}`);
             callback(new Error("Not allowed by CORS"));
         }
     },
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
-    credentials: true,
+    credentials: true, // Allow cookies or tokens
 };
+
 app.use(cors(corsOptions));
-app.options('*', cors(corsOptions)); // Handle preflight requests
+app.options('*', cors(corsOptions)); // Ensure preflight requests are handled
 
 // Middleware
 app.use(bodyParser.json());

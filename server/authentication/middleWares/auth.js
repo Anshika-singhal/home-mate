@@ -24,6 +24,7 @@ const userAuth = async (req, res, next) => {
 
         // Set the authenticated user in req.user
         req.user = user; // Use found user to set req.user
+        console.log('Outgoing Headers:', res.getHeaders());
         next(); // Proceed to the next middleware or route
     } catch (err) {
         console.error("Authentication Error:", err); // Log the error for debugging
