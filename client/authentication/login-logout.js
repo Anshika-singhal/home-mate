@@ -28,7 +28,7 @@ document.addEventListener("DOMContentLoaded", function () {
             return await response.json();
         } catch (err) {
             console.error("API error:", err);
-            alert(`Error: ${err.message}`);
+            // alert(`Error: ${err.message}`);
             return null;
         }
     }
