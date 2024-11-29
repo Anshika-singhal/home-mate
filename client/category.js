@@ -54,7 +54,7 @@ async function fetchCategoryItems(categoryId) {
         }
 
         // Display category name in navbar
-        document.getElementById('categoryName').textContent = data.name;
+        // document.getElementById('categoryName').textContent = data.name;
 
         const items = data.items;
         const categoryContainer = document.getElementById('categoryContainer');

@@ -28,17 +28,6 @@
             justify-content: space-between;
         }
 
-        nav {
-            background-color: #e3c9b8;
-            /* Same navbar background color */
-            padding: 0.5rem 1rem;
-            /* Ensure consistent padding */
-        }
-
-        .navbar-brand img {
-            height: 30px;
-        }
-
         #categoryName {
             text-align: center;
             font-weight: bold;
@@ -67,7 +56,7 @@
             /* Make it circular */
             width: 50px;
             /* Set width */
-            height: 50px;
+            /* height: 50px; */
             /* Set height */
             display: flex;
             /* Center the icon */
@@ -348,7 +337,7 @@
             padding: 10px;
         }
 
-        
+
         /* Position the delete button at the bottom-left */
         .flip-card-back .delete-btn {
             position: absolute;
@@ -366,28 +355,75 @@
             right: 10px;
             /* Place 10px from the right */
         }
+
+        /* Move the Add Item button upwards */
+        .add-item-button {
+            position: relative;
+            top: -40px;
+            /* Adjust this value to move the button upwards */
+        }
+
+        /* Optionally, adjust button alignment to the right */
+        .navbar .add-item-button {
+            margin-left: auto;
+        }
+
+        /* Category name text style */
+        #categoryName {
+            font-weight: bold;
+            color: #5f4b3d;
+            /* Dark color for better visibility */
+        }
+
+        .navbar {
+            padding: 0.5rem 1rem;
+            /* Reduce overall padding for smaller size */
+            background-color: #e3c9b8;
+            /* Maintain your desired background color */
+        }
+
+        .navbar-text {
+            position: absolute;
+            /* Position the text absolutely */
+            left: 50%;
+            /* Center horizontally */
+            transform: translateX(-50%);
+            /* Adjust for text centering */
+            font-size: 16px;
+            /* Adjust font size if needed */
+            font-weight: bold;
+            color: #8b5e3c;
+            /* Keep a consistent color scheme */
+        }
+
+        .navbar-brand img {
+            height: 30px;
+            /* Maintain size consistency */
+        }
+
+        .nav-item button {
+            padding: 0.4rem 0.8rem;
+            /* Adjust padding for smaller button size */
+        }
     </style>
 </head>
 
 <body>
-    <nav class="navbar navbar-expand-lg navbar-light">
+    <nav class="navbar navbar-light" style="padding-bottom: 0.25rem; padding-top: 0.5rem;">
         <div class="container-fluid">
             <a class="navbar-brand" href="Home.html">
-                <img src="home.png" alt="Home" class="img-fluid" style="max-width: 50px;">
+                <img src="home.png" alt="Home" class="img-fluid" style="max-width: 40px;">
             </a>
-            <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                <ul class="navbar-nav me-auto mb-2 mb-lg-0"></ul>
-                <span id="categoryName" class="navbar-text ms-3"></span> <!-- New category name display -->
-                <div class="nav-item add-item-button">
-                    <button class="btn" id="showFormButton">
-                        <i class="bi bi-plus" style="font-size: 24px; color: white;"></i>
-                    </button>
-                    <div class="add-item-message">Add Item</div>
-                </div>
+    
+            <!-- Add Item Button positioned to the right with circular shape -->
+            <div class="nav-item ms-auto">
+                <button class="btn btn-primary" id="showFormButton" style="border-radius: 50%; padding: 0.5rem; width: 50px; height: 50px; display: flex; justify-content: center; align-items: center;">
+                    <i class="bi bi-plus" style="font-size: 20px; color: white;"></i>
+                </button>
             </div>
         </div>
     </nav>
-
+    
     <div class="container">
         <div id="categoryContainer"
             style="display: flex; flex-direction: row; justify-content: center; flex-wrap: wrap;">
@@ -429,8 +465,8 @@
                     </div>
                     <div class="'mb-3">
                         <label for="ItemServiceDate" class="form-label">Select Next Service Date</label>
-                        <input type="text" class="form-control" id="ItemServiceDate" placeholder="Choose Next Service Date"
-                            required>
+                        <input type="text" class="form-control" id="ItemServiceDate"
+                            placeholder="Choose Next Service Date" required>
                     </div>
                     <div class="mb-3">
                         <button type="submit" class="btn btn-primary">Submit</button>
