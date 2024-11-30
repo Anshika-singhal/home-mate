@@ -45,20 +45,44 @@
                 <input type="password" id="password" placeholder="Enter your password" required>
               </div>
               <!-- <div class="text"><a href="#">Forgot password?</a></div> -->
-              <div id="forgotPassword">
-                <label for="E-Mail"> Enter Your Email ID</label>
-                <input type="email" id="email" name="email">
-                <button
-                  onclick="forgotPassword()">Forgot password?</button>
+              <!-- Forgot Password Section -->
+              <div id="forgotPassword"
+                style="display: none; margin: 20px auto; width: 300px; padding: 20px; border: 1px solid #ccc; border-radius: 8px; background-color: #f9f9f9;">
+                <h3 style="text-align: center; color: #333;">Forgot Password</h3>
+                <label for="email" style="display: block; margin-bottom: 8px; color: #333;">Enter Your Email ID</label>
+                <input type="email" id="email" name="email"
+                  style="width: 100%; padding: 8px; margin-bottom: 10px; border-radius: 5px; border: 1px solid #ddd;">
+                <button onclick="forgotPassword()"
+                  style="width: 100%; padding: 10px; background-color: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                  Forgot password?
+                </button>
+                <p style="text-align: center; margin-top: 10px;">
+                  <span style="color: #007bff; cursor: pointer;" onclick="showLoginForm()">Back to Login</span>
+                </p>
               </div>
-              <div id="resetPassword">
-                <label for="password"> Enter New Password</label>
-                <input type="password" id="newPassword" name="password">
-                <button
-                  onclick="resetPassword()">Submit</button>
+
+              <!-- Reset Password Section -->
+              <div id="resetPassword"
+                style="display: none; margin: 20px auto; width: 300px; padding: 20px; border: 1px solid #ccc; border-radius: 8px; background-color: #f9f9f9;">
+                <h3 style="text-align: center; color: #333;">Reset Password</h3>
+                <label for="newPassword" style="display: block; margin-bottom: 8px; color: #333;">Enter New
+                  Password</label>
+                <input type="password" id="newPassword" name="newPassword"
+                  style="width: 100%; padding: 8px; margin-bottom: 10px; border-radius: 5px; border: 1px solid #ddd;">
+                <button onclick="resetPassword()"
+                  style="width: 100%; padding: 10px; background-color: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                  Submit
+                </button>
               </div>
+
+              <!-- Trigger Button to Show Forgot Password Form -->
+              <button onclick="showForgotPassword()"
+                style="padding: 10px 15px; background-color: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                Forgot Password?
+              </button>
+
               <div class="button input-box">
-                <input type="submit" value="Sumbit">
+                <input type="submit" value="Login">
               </div>
               <div class="text sign-up-text">Don't have an account? <label for="flip">Sigup now</label></div>
             </div>
@@ -85,7 +109,7 @@
                 <input type="password" id="passwords" placeholder="Enter Your Strong Password" required>
               </div>
               <div class="button input-box">
-                <input type="submit" value="Sumbit">
+                <input type="submit" value="Signup">
               </div>
               <div class="text sign-up-text">Already have an account? <label for="flip">Login now</label></div>
             </div>

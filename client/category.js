@@ -53,9 +53,6 @@ async function fetchCategoryItems(categoryId) {
             return;
         }
 
-        // Display category name in navbar
-        // document.getElementById('categoryName').textContent = data.name;
-
         const items = data.items;
         const categoryContainer = document.getElementById('categoryContainer');
         categoryContainer.innerHTML = ''; // Clear previous content

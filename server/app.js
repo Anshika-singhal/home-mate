@@ -58,7 +58,7 @@ const app = express();
 const corsOptions = {
     origin: (origin, callback) => {
         console.log(`CORS origin check: ${origin}`);
-        const allowedOrigins = ["https://home-mate-beta.vercel.app/", "http://127.0.0.1:5500"];
+        const allowedOrigins = ["https://home-mate-w83w.onrender.com", "http://127.0.0.1:5500","http://localhost:5000"];
         if (!origin || allowedOrigins.includes(origin)) {
             callback(null, true);
         } else {
@@ -66,7 +66,7 @@ const corsOptions = {
             callback(new Error("Not allowed by CORS"));
         }
     },
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE','PATCH', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true, // Allow cookies or tokens
 };
@@ -86,30 +86,10 @@ app.use('/api/forgotPassword', controller.forgotPassword);
 app.use('/api/resetPassword', controller.resetPassword);
 
 // MongoDB Connection
-const mongourl = process.env.DATABASE_URL;
-mongoose.connect(mongourl, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-    useCreateIndex: true,
-    serverSelectionTimeoutMS: 5000,
-}).then(() => {
-    console.log('MongoDB connected');
-}).catch(err => {
-    console.error('MongoDB connection error:', err);
-});
-
-// Debug Incoming Requests
-app.use((req, res, next) => {
-    console.log(`Incoming Request - Origin: ${req.headers.origin}, Method: ${req.method}`);
-    console.log('Headers:', req.headers);
-    next();
-});
-
-// Error Handling Middleware
-app.use((err, req, res, next) => {
-    console.error('Error:', err.stack);
-    res.status(500).send('Something went wrong!');
-});
+const mongourl = process.env.database;
+mongoose.connect(mongourl)
+    .then(() => console.log('MongoDB connected'))
+    .catch(err => console.log(err));
 
 // Start Server
 const PORT = process.env.PORT || 5000;
