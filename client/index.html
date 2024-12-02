@@ -46,7 +46,7 @@
               </div>
               <!-- <div class="text"><a href="#">Forgot password?</a></div> -->
               <!-- Forgot Password Section -->
-              <div id="forgotPassword"
+              <!-- <div id="forgotPassword"
                 style="display: none; margin: 20px auto; width: 300px; padding: 20px; border: 1px solid #ccc; border-radius: 8px; background-color: #f9f9f9;">
                 <h3 style="text-align: center; color: #333;">Forgot Password</h3>
                 <label for="email" style="display: block; margin-bottom: 8px; color: #333;">Enter Your Email ID</label>
@@ -59,9 +59,9 @@
                 <p style="text-align: center; margin-top: 10px;">
                   <span style="color: #007bff; cursor: pointer;" onclick="showLoginForm()">Back to Login</span>
                 </p>
-              </div>
+              </div hidden>
 
-              <!-- Reset Password Section -->
+              <!-- Reset Password Section 
               <div id="resetPassword"
                 style="display: none; margin: 20px auto; width: 300px; padding: 20px; border: 1px solid #ccc; border-radius: 8px; background-color: #f9f9f9;">
                 <h3 style="text-align: center; color: #333;">Reset Password</h3>
@@ -75,11 +75,11 @@
                 </button>
               </div>
 
-              <!-- Trigger Button to Show Forgot Password Form -->
+              <!-- Trigger Button to Show Forgot Password Form 
               <button onclick="showForgotPassword()"
                 style="padding: 10px 15px; background-color: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer;">
                 Forgot Password?
-              </button>
+              </button hidden> -->
 
               <div class="button input-box">
                 <input type="submit" value="Login">
@@ -140,6 +140,8 @@
       ? 'block' 
       : 'none';
   }</script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 </body>
 
 </html>

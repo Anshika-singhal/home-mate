@@ -18,7 +18,9 @@ document.addEventListener('DOMContentLoaded', function () {
             });
 
             if (response.ok) {
-                alert(`Do you really want to logout!`);
+                Swal.fire({
+                    title: "Logout successful"
+                });
                 // Clear user data from local storage
                 localStorage.removeItem("userId");
                 localStorage.removeItem("authToken");
@@ -28,11 +30,18 @@ document.addEventListener('DOMContentLoaded', function () {
                 window.location.href = "./index.html";
             } else {
                 console.error("Logout failed.");
-                alert("Logout failed, please try again.");
+                Swal.fire({
+                    icon: "error",
+                    title: "Logout Failed",
+                    text: "Please try again.",
+                });
             }
         } catch (error) {
-            console.error("Error logging out:", error);
-            alert("An error occurred while logging out.");
+            Swal.fire({
+                icon: "error",
+                title: "Oops...",
+                text: error.message,
+            });
         }
     });
     const categoryMessageElement = document.getElementById("categoryMessage");
