@@ -149,6 +149,9 @@
     </style>
 </head>
 
+<script src="scripts.js" defer></script>
+<script src="dueItem.js" defer></script>
+
 <body>
     <nav class="navbar navbar-expand-lg navbar-light">
         <div class="container-fluid">
@@ -168,10 +171,9 @@
                 </ul>
 
                 <!-- Logout button aligned to the right with background color -->
-                <button id="logoutButton" class="btn ms-auto"
-                    style="background-color: #bfa284; border: none; color: white;">
+                <button id="logoutButton" class="btn ms-auto" style="background-color: #bfa284; border: none; color: white;" aria-label="Logout">
                     <i class="fas fa-sign-out-alt"></i>
-                </button>
+                </button>                
             </div>
         </div>
     </nav>
@@ -183,14 +185,6 @@
                 <div class="card mb-4">
                     <div class="card-header">
                         <h2 id="categoriesHeader">Categories</h2>
-                    </div>
-                    <div>
-                        <h5 id="Welcome">
-                            </h1>
-                    </div>
-                    <div>
-                        <h5 id="Welcomes">
-                            </h1>
                     </div>
                     <div class="card-body">
                         <div id="categoryMessage" class="text-success mt-2"></div>
@@ -239,8 +233,6 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="scripts.js"></script>
-    <script src="dueItem.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </body>
 

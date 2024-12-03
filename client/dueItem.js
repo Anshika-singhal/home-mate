@@ -1,10 +1,9 @@
-const userData = JSON.parse(localStorage.getItem("userData"));
+document.addEventListener("DOMContentLoaded", fetchCategoryDueItem);
 
 async function fetchCategoryDueItem() {
     const userId = localStorage.getItem("userId");
     const authToken = localStorage.getItem("authToken");
 
-    // Check if userId and token are present
     if (!userId || !authToken) {
         console.error("User ID or Auth token is missing. Redirecting to login page.");
         window.location.href = "./index.html";
@@ -12,53 +11,51 @@ async function fetchCategoryDueItem() {
     }
 
     try {
-        // Fetch categories
         const categoryResponse = await fetch(`https://home-mate-server-ekkv.onrender.com/api/v1/user/${userId}/category`, {
-            headers: {
-                'Authorization': `Bearer ${authToken}`
-            }
+            headers: { 'Authorization': `Bearer ${authToken}` },
         });
 
-        // Check if the response is OK
         if (!categoryResponse.ok) {
             console.error("Error fetching categories:", await categoryResponse.text());
             return;
         }
 
         const categories = await categoryResponse.json();
-        console.log(categories);
         const DueItemList = document.getElementById('DueItemList');
-        DueItemList.innerHTML = ''; // Clear previous list
+        if (!DueItemList) {
+            console.error("DueItemList element not found in DOM.");
+            return;
+        }
+        DueItemList.innerHTML = '';
 
         const now = new Date();
         const oneDayInMs = 24 * 60 * 60 * 1000;
 
-        // Loop through categories and fetch items for each
         for (const category of categories) {
             const categoryId = category._id;
 
             const itemResponse = await fetch(`https://home-mate-server-ekkv.onrender.com/api/v1/user/${userId}/category/${categoryId}/item`, {
-                headers: {
-                    'Authorization': `Bearer ${authToken}`
-                }
+                headers: { 'Authorization': `Bearer ${authToken}` },
             });
 
-            // Check if the response is OK
             if (!itemResponse.ok) {
-                console.error(`Error fetching items for category ${category.name}:`, await itemResponse.text());
+                console.error(`Error (${itemResponse.status}) fetching items for category ${category.name}:`, await itemResponse.text());
                 continue;
             }
 
             const categoryData = await itemResponse.json();
             const items = categoryData.items || [];
 
-            // Filter and display items due within 24 hours
             items.forEach(item => {
-                const dueDate = new Date(item.serviceDate);
+                const dueDate = item.serviceDate ? new Date(item.serviceDate) : null;
+                if (!dueDate || isNaN(dueDate.getTime())) {
+                    console.warn(`Invalid serviceDate for item ${item.name}:`, item.serviceDate);
+                    return;
+                }
+
                 const leftTime = dueDate - now;
 
                 if (leftTime >= 0 && leftTime <= oneDayInMs && !item.workFinish) {
-                    // Create item card
                     const itemDiv = document.createElement('div');
                     itemDiv.className = 'list-group-item d-flex justify-content-between align-items-center';
 
@@ -68,7 +65,6 @@ async function fetchCategoryDueItem() {
                             <p class="card-text">Description: ${item.description || 'No Description'}</p>
                             <h6 class="card-text">Due Date: ${item.serviceDate}</h6>
                         </div>`;
-
                     DueItemList.appendChild(itemDiv);
                 }
             });
@@ -77,6 +73,3 @@ async function fetchCategoryDueItem() {
         console.error("Error fetching due items:", error);
     }
 }
-
-// Call the function on page load
-fetchCategoryDueItem();

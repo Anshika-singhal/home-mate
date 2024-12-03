@@ -48,7 +48,7 @@ async function fetchCategoryItems(categoryId) {
         });
         const data = await response.json();
 
-        if (!data ) {
+        if (!data) {
             document.getElementById("categoryContainer").innerText = "No such category found.";
             return;
         }
@@ -92,28 +92,70 @@ async function fetchCategoryItems(categoryId) {
             cardHeader.style.color = '#333'; // Dark text
             cardHeader.style.justifyContent = 'space-between'; // Space elements out
 
-            // Checkbox for item completion
             const checkbox = document.createElement('input');
             checkbox.type = 'checkbox';
             checkbox.checked = item.workFinish; // Set checkbox based on item's finish status
+
             checkbox.addEventListener('change', async function () {
                 if (this.checked) {
-                    const isConfirmed = confirm("Have you completed this task?");
-                    if (isConfirmed) {
+                    // Replace the confirm with SweetAlert and input field
+                    const result = await Swal.fire({
+                        title: 'Have you completed this task?',
+                        text: 'Type "Yes" to confirm that you have completed the task.',
+                        input: 'text', // Add input field
+                        inputPlaceholder: 'Type "Yes" to confirm',
+                        icon: 'question',
+                        showCancelButton: true,
+                        confirmButtonText: 'Confirm',
+                        cancelButtonText: 'Cancel',
+                        reverseButtons: true
+                    });
+
+                    // Check if the input matches the confirmation text
+                    if (result.isConfirmed && result.value.toLowerCase() === 'yes') {
                         await toggleCheckBox(categoryId, item._id);
                         await updateDate(categoryId, item._id);
-                        const frequency = item.frequency || 'weekly'; // Default to 'daily' if frequency is not defined
+                        const frequency = item.frequency || 'weekly'; // Default to 'weekly' if frequency is not defined
                         await dateUpdateNext(categoryId, item._id, frequency);
-                    } else {
+                    } else if (result.isDismissed) {
                         checkbox.checked = false; // Revert checkbox state if canceled
+                    } else {
+                        // If the input is incorrect, show an error message
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Oops...',
+                            text: 'You must type "Yes" to confirm.',
+                        });
+                        checkbox.checked = false; // Revert checkbox state if invalid input
                     }
                 } else {
-                    const isConfirmed = confirm("Are you sure you want to uncheck this checkbox?");
-                    if (isConfirmed) {
+                    // Replace the confirm with SweetAlert for unchecking, with input for confirmation
+                    const result = await Swal.fire({
+                        title: 'Are you sure?',
+                        text: 'Type "Yes" to uncheck this task.',
+                        input: 'text', // Add input field
+                        inputPlaceholder: 'Type "Yes" to uncheck',
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonText: 'Confirm',
+                        cancelButtonText: 'Cancel',
+                        reverseButtons: true
+                    });
+
+                    // Check if the input matches the confirmation text
+                    if (result.isConfirmed && result.value.toLowerCase() === 'yes') {
                         await toggleCheckBox(categoryId, item._id);
                         await updateDate(categoryId, item._id);
-                    } else {
+                    } else if (result.isDismissed) {
                         checkbox.checked = true; // Revert checkbox state if canceled
+                    } else {
+                        // If the input is incorrect, show an error message
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Oops...',
+                            text: 'You must type "Yes" to confirm.',
+                        });
+                        checkbox.checked = true; // Revert checkbox state if invalid input
                     }
                 }
                 // Update the incomplete count display
@@ -157,7 +199,7 @@ async function fetchCategoryItems(categoryId) {
             const instructions = document.createElement('p');
             instructions.innerText = `${item.instructions || 'No instructions available'}`;
             instructions.style.margin = '10px 0'; // Add margin to create space around the instructions
-            
+
 
             const frequency = document.createElement('p');
             frequency.innerText = `Frequency: ${item.frequency}`;
@@ -347,9 +389,33 @@ async function toggleCheckBox(categoryId, itemId) {
 
 // Function to delete item from category
 async function deleteItemFromCategory(categoryId, itemId) {
-    if (!confirm("Are you sure you want to delete this item?")) {
-        return; // Exit the function if the user cancels
+    // Replace confirm dialog with SweetAlert and include an input field for confirmation
+    const result = await Swal.fire({
+        title: 'Are you sure?',
+        text: 'Type "DELETE" to confirm the deletion of this item.',
+        icon: 'warning',
+        input: 'text',  // Input field for typing confirmation text
+        inputPlaceholder: 'Type "DELETE" to confirm',
+        showCancelButton: true,
+        confirmButtonText: 'Yes, delete it!',
+        cancelButtonText: 'No, keep it',
+        reverseButtons: true
+    });
+
+    // Check if the user confirmed the action and typed "DELETE"
+    if (!result.isConfirmed || result.value.toLowerCase() !== 'delete') {
+        if (result.isDismissed) {
+            console.log('Item deletion canceled.');
+        } else {
+            Swal.fire({
+                icon: 'error',
+                title: 'Oops...',
+                text: 'You must type "DELETE" to confirm.',
+            });
+        }
+        return; // Exit the function if the user cancels or does not type "DELETE"
     }
+
     const userId = localStorage.getItem("userId");
     const authToken = localStorage.getItem("authToken");
 
@@ -364,16 +430,33 @@ async function deleteItemFromCategory(categoryId, itemId) {
             method: 'DELETE',
             headers: { 'Authorization': `Bearer ${authToken}` }
         });
+
         if (!response.ok) {
             throw new Error("Cannot delete the item!");
         }
 
         // Fetch and update category items after successful deletion
         fetchCategoryItems(categoryId);
+
+        // Show success alert
+        Swal.fire({
+            title: 'Deleted!',
+            text: 'The item has been deleted.',
+            icon: 'success',
+            showConfirmButton: false,
+            timer: 2000  // Automatically close after 2 seconds
+        });
     } catch (error) {
         console.error(`Error deleting item: ${error.message}`);
+        // Show error alert
+        Swal.fire(
+            'Error!',
+            `An error occurred while deleting the item: ${error.message}`,
+            'error'
+        );
     }
 }
+
 
 //Function to add lastServiced date in database
 async function updateDate(categoryId, itemId) {
@@ -391,7 +474,7 @@ async function updateDate(categoryId, itemId) {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${authToken}` 
+                'Authorization': `Bearer ${authToken}`
             },
             body: JSON.stringify({ lastServiced: new Date().toISOString() }),
         });

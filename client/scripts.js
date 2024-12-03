@@ -227,19 +227,48 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Delete category by ID
     async function deleteCategorybyID(categoryId) {
+        // Replace confirm dialog with SweetAlert and include an input field
+        const result = await Swal.fire({
+            title: 'Are you sure?',
+            text: 'Type "DELETE" to confirm the deletion of this category.',
+            icon: 'warning',
+            input: 'text', // Input field to type "DELETE"
+            inputPlaceholder: 'Type "DELETE" to confirm',
+            showCancelButton: true,
+            confirmButtonText: 'Yes, delete it!',
+            cancelButtonText: 'No, keep it',
+            reverseButtons: true
+        });
+    
+        // Check if the user confirmed the action and typed "DELETE"
+        if (!result.isConfirmed || result.value.toLowerCase() !== 'delete') {
+            if (result.isDismissed) {
+                categoryMessageElement.innerText = 'Category deletion canceled.';
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'You must type "DELETE" to confirm.',
+                });
+            }
+            return; // Exit the function if the user cancels or does not type "DELETE"
+        }
+    
         const userId = localStorage.getItem("userId");
         const authToken = localStorage.getItem("authToken");
-
-        if (!confirm("Are you sure you want to delete this category?")) {
+    
+        if (!userId || !authToken) {
+            console.error("User ID or auth token is undefined. Redirecting to login.");
+            window.location.href = "./index.html";
             return;
         }
-
+    
         try {
             const response = await fetch(`https://home-mate-server-ekkv.onrender.com/api/v1/user/${userId}/category/${categoryId}`, {
                 method: 'DELETE',
                 headers: { 'Authorization': `Bearer ${authToken}` }
             });
-
+    
             if (response.ok) {
                 const categoryElement = document.getElementById(categoryId);
                 if (categoryElement) categoryElement.remove();
@@ -252,6 +281,6 @@ document.addEventListener('DOMContentLoaded', function () {
             categoryMessageElement.innerText = `Error deleting category: ${error.message}`;
         }
     }
-
+    
     fetchCategories();
 });
