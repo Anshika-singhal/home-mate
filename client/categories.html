@@ -409,27 +409,24 @@
             <a class="navbar-brand" href="Home.html">
                 <img src="home.png" alt="Home" class="img-fluid" style="max-width: 40px;">
             </a>
-    
+
             <!-- Add Item Button positioned to the right with circular shape -->
             <div class="nav-item ms-auto">
-                <button class="btn btn-primary" id="showFormButton" style="border-radius: 50%; padding: 0.5rem; width: 50px; height: 50px; display: flex; justify-content: center; align-items: center;background-color: #bfa284;">
+                <button class="btn btn-primary" id="showFormButton"
+                    style="border-radius: 50%; padding: 0.5rem; width: 50px; height: 50px; display: flex; justify-content: center; align-items: center;background-color: #bfa284;">
                     <i class="bi bi-plus" style="font-size: 20px; color: white;"></i>
                 </button>
             </div>
         </div>
     </nav>
-    
+
     <div class="container">
-        <div id="categoryContainer"
-            style="display: flex; flex-direction: row; justify-content: center; flex-wrap: wrap;">
-        </div>
-
-
+       
         <div id="ResponseMessage" style="color: green; font-weight: bold; display: none;"></div>
 
         <div id="itemFormContainer" class="card">
             <div class="card-header">
-                Add Item
+                <strong>Add New Item</strong>
             </div>
             <div class="card-body">
                 <form id="ItemForm">
@@ -469,6 +466,9 @@
                     </div>
                 </form>
             </div>
+        </div>
+        <div id="categoryContainer"
+            style="display: flex; flex-direction: row; justify-content: center; flex-wrap: wrap;">
         </div>
     </div>
 
