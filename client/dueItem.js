@@ -33,6 +33,7 @@ async function fetchCategoryDueItem() {
 
         for (const category of categories) {
             const categoryId = category._id;
+            const categoryName = category.name
 
             const itemResponse = await fetch(`https://home-mate-server-ekkv.onrender.com/api/v1/user/${userId}/category/${categoryId}/item`, {
                 headers: { 'Authorization': `Bearer ${authToken}` },
@@ -44,10 +45,11 @@ async function fetchCategoryDueItem() {
             }
 
             const categoryData = await itemResponse.json();
-            const items = categoryData.items || [];
+            const items = categoryData.items || []; 
 
             items.forEach(item => {
                 const dueDate = item.serviceDate ? new Date(item.serviceDate) : null;
+                const formatDate = new Date(item.serviceDate).toLocaleDateString();
                 if (!dueDate || isNaN(dueDate.getTime())) {
                     console.warn(`Invalid serviceDate for item ${item.name}:`, item.serviceDate);
                     return;
@@ -55,15 +57,15 @@ async function fetchCategoryDueItem() {
 
                 const leftTime = dueDate - now;
 
-                if (leftTime >= 0 && leftTime <= oneDayInMs && !item.workFinish) {
+                if (leftTime <= 0 && leftTime <= oneDayInMs && !item.workFinish) {
                     const itemDiv = document.createElement('div');
                     itemDiv.className = 'list-group-item d-flex justify-content-between align-items-center';
 
                     itemDiv.innerHTML = `
                         <div class="col md-4">
-                            <h4 class="card-title">Name: ${item.name}</h4>
-                            <p class="card-text">Description: ${item.description || 'No Description'}</p>
-                            <h6 class="card-text">Due Date: ${item.serviceDate}</h6>
+                            <h4 class="card-title">${item.name}</h4>
+                            <h6 class="card-text">Category: ${categoryName}</h6>
+                            <h6 class="card-text">Due Date: ${formatDate}</h6>
                         </div>`;
                     DueItemList.appendChild(itemDiv);
                 }
