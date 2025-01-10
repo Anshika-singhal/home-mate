@@ -90,6 +90,15 @@ function renderDueItems(items) {
     const DueItemList = document.getElementById('DueItemList');
     DueItemList.innerHTML = ''; // Clear previous content
 
+    if (items.length === 0) {
+        // Show message if no pending items
+        const noItemsMessage = document.createElement('div');
+        noItemsMessage.className = 'text-center mt-4';
+        noItemsMessage.innerHTML = `<h5 class="text-muted">No pending items</h5>`;
+        DueItemList.appendChild(noItemsMessage);
+        return;
+    }
+
     items.forEach(item => {
         const itemDiv = document.createElement('div');
         itemDiv.className = 'list-group-item d-flex justify-content-between align-items-center';

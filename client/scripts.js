@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', function () {
         try {
             const response = await fetch('https://home-mate-server-ekkv.onrender.com/api/logout', {
                 method: 'POST',
-                credentials: 'include', 
+                credentials: 'include',
                 headers: {
                     'Authorization': `Bearer ${authToken}`
                 }
@@ -47,16 +47,16 @@ document.addEventListener('DOMContentLoaded', function () {
         e.preventDefault();
         const categoryMessageElement = document.getElementById("CategoryMessage");
         const CategoryName = document.getElementById("CategoryName").value.trim();
-    
+
         if (!CategoryName) {
             displayErrorMessage("Please enter a category name.");
             return;
         }
-    
+
         const requestBody = { name: CategoryName };
         const userId = localStorage.getItem("userId");
         const authToken = localStorage.getItem("authToken");
-    
+
         try {
             const response = await fetch(`https://home-mate-server-ekkv.onrender.com/api/v1/admin/user/${userId}/category`, {
                 method: "POST",
@@ -66,16 +66,16 @@ document.addEventListener('DOMContentLoaded', function () {
                 },
                 body: JSON.stringify(requestBody)
             });
-    
+
             const result = await response.json();
-    
+
             if (response.ok) {
                 // Handle recovery case
                 if (result.category?.isDeleted) {
                     handleRecoveryOption(result.category._id);
                     return;
                 }
-    
+
                 // Success case
                 displaySuccessMessage(result.message || "Category created successfully!");
                 document.getElementById("CategoryForm").reset();
@@ -88,52 +88,61 @@ document.addEventListener('DOMContentLoaded', function () {
             displayErrorMessage("An error occurred: " + error.message);
         }
     });
-    
-    // Handles recovery modal option
+
+    // Handles recovery modal option using Swal.fire
     function handleRecoveryOption(categoryId) {
-        const recoveryModal = new bootstrap.Modal(document.getElementById('RecoveryModal'));
         console.log("Initiating recovery for category ID:", categoryId);
-        // Update modal message and show it
-        document.getElementById('RecoveryModalMessage').innerText =
-            "A deleted category with this name exists. Do you want to recover it?...";
-        recoveryModal.show();
-    
-        // Configure buttons for recovery or creation
-        document.getElementById("RecoverButton").onclick = function () {
-      
-            recoverCategory(categoryId, recoveryModal);   
-        };
-    
-        document.getElementById("CreateNewButton").onclick = function () {
-            createNewCategory(categoryId, recoveryModal);
-        };
+
+        Swal.fire({
+            title: 'Deleted Category Detected',
+            text: 'A deleted category with this name exists. Do you want to recover it or create a new one?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Recover Category',
+            cancelButtonText: 'Create New',
+            reverseButtons: true,
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // User clicked 'Recover Category'
+                recoverCategory(categoryId)
+                    .then(() => {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Recovered!',
+                            text: 'The category has been successfully recovered.',
+                            timer: 3000, // Display for 3 seconds
+                            timerProgressBar: true,
+                            showConfirmButton: false // Hides the "OK" button
+                        });
+                        fetchCategories(); // Reload categories
+                    })
+                    .catch((error) => {
+                        console.error('Recovery failed:', error);
+                        Swal.fire('Error!', 'Failed to recover the category.', 'error');
+                    });
+            } else if (result.dismiss === Swal.DismissReason.cancel) {
+                // User clicked 'Create New'
+                createNewCategory(categoryId)
+                    .then(() => {
+                        Swal.fire('Created!', 'A new category has been created.', 'success');
+                        fetchCategories(); // Reload categories
+                    })
+                    .catch((error) => {
+                        console.error('Creation failed:', error);
+                        Swal.fire('Error!', 'Failed to create a new category.', 'error');
+                    });
+            }
+        });
     }
-    
-    // Utility to display error messages
-    function displayErrorMessage(message) {
-        const msgElement = document.getElementById("CategoryMessage");
-        msgElement.innerText = message;
-        msgElement.classList.add("text-danger");
-        msgElement.classList.remove("text-success");
-    }
-    
-    // Utility to display success messages
-    function displaySuccessMessage(message) {
-        const msgElement = document.getElementById("CategoryMessage");
-        msgElement.innerText = message;
-        msgElement.classList.add("text-success");
-        msgElement.classList.remove("text-danger");
-    }
-    
+
     // Recover category function
-    async function recoverCategory(categoryId, modal) {
+    async function recoverCategory(categoryId) {
         const userId = localStorage.getItem("userId");
         const authToken = localStorage.getItem("authToken");
         console.log("Recovering category with ID:", categoryId);
-    
+
         try {
             const response = await fetch(
-                
                 `https://home-mate-server-ekkv.onrender.com/api/v1/user/${userId}/category/${categoryId}/recover`,
                 {
                     method: "PATCH",
@@ -143,11 +152,10 @@ document.addEventListener('DOMContentLoaded', function () {
                     }
                 }
             );
-    
+
             if (response.ok) {
-                displaySuccessMessage("Category recovered successfully!");
-                modal.hide(); 
-                fetchCategories();
+                // displaySuccessMessage("Category recovered successfully!");
+                fetchCategories(); // Ensure the categories are updated
             } else {
                 const errorData = await response.json();
                 displayErrorMessage(errorData?.message || "Failed to recover category.");
@@ -156,12 +164,12 @@ document.addEventListener('DOMContentLoaded', function () {
             displayErrorMessage("Error: " + error.message);
         }
     }
-    
+
     // Create a new category function
-    async function createNewCategory(baseCategoryId, modal) {
+    async function createNewCategory(baseCategoryId) {
         const userId = localStorage.getItem("userId");
         const authToken = localStorage.getItem("authToken");
-    
+
         try {
             const response = await fetch(
                 `https://home-mate-server-ekkv.onrender.com/api/v1/admin/user/${userId}/category`,
@@ -174,11 +182,10 @@ document.addEventListener('DOMContentLoaded', function () {
                     body: JSON.stringify({ name: `${baseCategoryId}_new` })
                 }
             );
-    
+
             if (response.ok) {
                 displaySuccessMessage("New category created successfully!");
-                modal.hide();
-                fetchCategories();
+                fetchCategories(); // Ensure the categories are updated
             } else {
                 displayErrorMessage("Failed to create a new category.");
             }
@@ -186,8 +193,24 @@ document.addEventListener('DOMContentLoaded', function () {
             displayErrorMessage("Error occurred: " + error.message);
         }
     }
-    
-// Simulating the category fetching function to populate and refresh category list if necessary
+
+    // Utility to display error messages
+    function displayErrorMessage(message) {
+        const msgElement = document.getElementById("CategoryMessage");
+        msgElement.innerText = message;
+        msgElement.classList.add("text-danger");
+        msgElement.classList.remove("text-success");
+    }
+
+    // Utility to display success messages
+    function displaySuccessMessage(message) {
+        const msgElement = document.getElementById("CategoryMessage");
+        msgElement.innerText = message;
+        msgElement.classList.add("text-success");
+        msgElement.classList.remove("text-danger");
+    }
+
+    // Simulating the category fetching function to populate and refresh category list if necessary
 
     // Fetch and display categories
     async function fetchCategories() {
@@ -315,7 +338,7 @@ document.addEventListener('DOMContentLoaded', function () {
             cancelButtonText: 'No, keep it',
             reverseButtons: true
         });
-    
+
         // Check if the user confirmed the action and typed "DELETE"
         if (!result.isConfirmed || result.value.toLowerCase() !== 'delete') {
             if (result.isDismissed) {
@@ -329,22 +352,22 @@ document.addEventListener('DOMContentLoaded', function () {
             }
             return; // Exit the function if the user cancels or does not type "DELETE"
         }
-    
+
         const userId = localStorage.getItem("userId");
         const authToken = localStorage.getItem("authToken");
-    
+
         if (!userId || !authToken) {
             console.error("User ID or auth token is undefined. Redirecting to login.");
             window.location.href = "./index.html";
             return;
         }
-    
+
         try {
             const response = await fetch(`https://home-mate-server-ekkv.onrender.com/api/v1/user/${userId}/category/${categoryId}`, {
                 method: 'DELETE',
                 headers: { 'Authorization': `Bearer ${authToken}` }
             });
-    
+
             if (response.ok) {
                 const categoryElement = document.getElementById(categoryId);
                 if (categoryElement) categoryElement.remove();
@@ -359,6 +382,6 @@ document.addEventListener('DOMContentLoaded', function () {
             setTimeout(() => { categoryMessageElement.innerText = ''; }, 3000);
         }
     }
-    
+
     fetchCategories();
 });
